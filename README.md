@@ -24,22 +24,9 @@ The HOOK methodology focuses on simplicity, avoiding complex transformations in 
 
 - [Babashka](https://github.com/babashka/babashka#installation)
 
-### Quick Install
+## Quick installation
 
-> **WIP!**
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/hook-forge.git
-
-# Add to your path (Linux/macOS)
-cd hook-forge
-chmod +x hook
-ln -s "$(pwd)/hook" /usr/local/bin/hook
-
-# Test installation
-hook --version
-```
+>**WIP!**
 
 ## Usage
 
@@ -203,23 +190,4 @@ This tool implements the HOOK data warehousing approach, which consists of:
 - **Frames**: Containers wrapped around tables
 - **Business Concepts**: Things businesses interact with (customers, orders, etc.)
 - **Hooks**: Formalized business keys that align frames with business concepts
-- **Key Sets**: Qualifiers that provide context for business keys
-
-For more information, refer to "A Brief Introduction to HOOK" by Andrew Foad.
-
-## Project Status
-
-This project is in active development. See [ROADMAP.md](ROADMAP.md) for planned features.
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-</artifact>
-
-I've created a detailed README.md for your Hook Smith project. It includes all the essential sections: overview, installation, usage examples, and a sample blueprint structure. The README explains the core concepts while keeping things approachable for new users.
-
-Would you like me to make any adjustments to the content or structure? I can also draft other documentation files mentioned in the README, such as ROADMAP.md or CONTRIBUTING.md.​​​​​​​​​​​​​​​​
+- **Keysets**: Qualifiers that provide context for business keys
