@@ -2,7 +2,7 @@
 
 *Forging HOOK data warehouse structures with precision*
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 [![Clojure](https://img.shields.io/badge/Clojure-Babashka-green.svg)](https://babashka.org/)
 
 ## Overview
