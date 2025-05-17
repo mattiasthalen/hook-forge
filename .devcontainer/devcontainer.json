@@ -1,0 +1,36 @@
+{
+    "image": "babashka/babashka",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/roul/devcontainer-features/mise-java:1": {}
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/hook-forge,type=bind",
+    "workspaceFolder": "/workspaces/hook-forge",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "oderwat.indent-rainbow",
+                "bierner.markdown-mermaid",
+                "betterthantomorrow.calva",
+                "betterthantomorrow.calva-backseat-driver",
+                "eamodio.gitlens",
+                "ms-vscode.vscode-speech"
+            ],
+            "settings": {
+                "files.eol": "\n",
+                "calva-backseat-driver.enableReplEvaluation": true,
+                "calva.autoStartRepl": true,
+                "calva.replConnectSequences": [
+                    {
+                        "name": "Babashka REPL",
+                        "projectType": "babashka",
+                        "autoSelectForJackIn": true,
+                        "projectRootPath": ["."],
+                        "afterCLJReplJackInCode": "(println \"Babashka REPL connected and ready!\")",
+                        "menuSelections": {}
+                    }
+                ]
+            }
+        }
+    }
+}
