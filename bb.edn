@@ -1,0 +1,8 @@
+{:paths ["src" "test"]
+
+ :tasks {test {:task (exec 'cognitect.test-runner.api/test)
+               :extra-deps {io.github.cognitect-labs/test-runner
+                            {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+               :requires ([babashka.tasks :refer [shell]])}
+         hook {:task (apply core/-main *command-line-args*)
+               :requires ([hook-smith.core :as core])}}}
