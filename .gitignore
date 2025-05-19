@@ -17,10 +17,7 @@ pom.xml.asc
 .nrepl-*
 .DS_Store
 
-.calva/output-window
-.calva/repl.calva-repl
-.lsp/.cache
-.clj-kondo/.cache
-
-*.pdf
-A Brief Introduction To Hook.txt
+.calva/
+.calva/
+.lsp/
+.clj-kondo/
