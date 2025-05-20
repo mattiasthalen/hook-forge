@@ -17,7 +17,7 @@
         type-str (if (vector? type) (first type) type)]
     (println "Drafting blueprint...")
     (->> (blueprint/generate-blueprint type-str)
-         (blueprint/convert-map-to-yaml)
+         (utilities/convert-map-to-yaml)
          (utilities/safe-save file-path))))
 
 (defn forge [args]

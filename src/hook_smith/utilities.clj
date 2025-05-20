@@ -1,5 +1,6 @@
 (ns hook-smith.utilities
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clj-yaml.core :as yaml]))
 
 (defn safe-save
   "Safely save content to a file, prompting for confirmation if the file exists."
@@ -19,3 +20,8 @@
       (do
         (spit file-path content)
         (println (str "File saved: " file-path))))))
+
+(defn convert-map-to-yaml
+  "Converts a map to YAML format."
+  [data]
+  (yaml/generate-string data :dumper-options {:flow-style :block}))
