@@ -1,6 +1,8 @@
-(ns hook-smith.templates)
+(ns hook-smith.blueprint
+  (:require [clj-yaml.core :as yaml]))
 
-(def generate-qlik-yaml
+(def generate-qlik-blueprint
+  "Generates a blueprint for Qlik."
   {:project_name "Project Name"
    :type "qlik"
 
@@ -36,7 +38,18 @@
                       :keyset "source.product"
                       :business_key_field "product_id"}]
 
-             :composite_hooks [
-                               {:name "hook__order_product"
+             :composite_hooks [{:name "hook__order_product"
                                 :primary true
                                 :hooks ["hook__order" "hook__product"]}]}]})
+
+(defn generate-blueprint
+  "Generates a blueprint for the given type."
+  [type]
+  (case type
+    "qlik" generate-qlik-blueprint
+    (throw (ex-info "Unknown type" {:type type}))))
+
+(defn convert-map-to-yaml
+  "Converts a map to YAML format."
+  [data]
+  (yaml/generate-string data :dumper-options {:flow-style :block}))
