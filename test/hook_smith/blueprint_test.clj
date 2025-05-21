@@ -2,16 +2,7 @@
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [hook-smith.blueprint :as blueprint]
             [hook-smith.utilities :as utilities]
-            [clojure.java.io :as io]
-            [babashka.fs :as fs])
-  (:import [java.io StringWriter]))
-
-;; Helper for capturing stdout
-(defn with-out-str-custom [f]
-  (let [s (StringWriter.)]
-    (binding [*out* s]
-      (f)
-      (str s))))
+            [babashka.fs :as fs]))
 
 ;; Create a dynamic var for the temp directory
 (def ^:dynamic *test-temp-dir* nil)
