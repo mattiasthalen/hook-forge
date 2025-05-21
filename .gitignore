@@ -21,3 +21,6 @@ pom.xml.asc
 .calva/
 .lsp/
 .clj-kondo/
+
+# Generated artifacts
+hook/

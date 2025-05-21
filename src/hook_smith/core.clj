@@ -1,6 +1,5 @@
 (ns hook-smith.core
-  (:require [hook-smith.blueprint :as blueprint]
-            [hook-smith.utilities :as utilities]))
+  (:require [hook-smith.blueprint :as blueprint]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -12,13 +11,14 @@
   (println "  journal")
   (println ""))
 
-(defn blueprint [path type]
-  (let [file-path (str path "/hook.yaml")
-        type-str (if (vector? type) (first type) type)]
-    (println "Drafting blueprint...")
-    (->> (blueprint/generate-blueprint type-str)
-         (utilities/convert-map-to-yaml)
-         (utilities/safe-save file-path))))
+(defn blueprint [path]
+  (println "Drafting blueprints...")
+  
+  (let [blueprint-specs [["concepts" blueprint/concepts-blueprint]
+                         ["keysets" blueprint/keysets-blueprint]
+                         ["frames" blueprint/frames-blueprint]]]
+    
+    (mapv (partial blueprint/generate-blueprint-file path) blueprint-specs)))
 
 (defn forge [args]
   (println "Forging frames...")
@@ -49,5 +49,6 @@
                 remaining-args (rest args)
                 command-fn (handle-command command)
                 path (System/getProperty "user.dir")
-                args-with-path (concat [path] remaining-args)]
+                full-path (str path "/hook")
+                args-with-path (concat [full-path] remaining-args)]
             (apply command-fn args-with-path))))
