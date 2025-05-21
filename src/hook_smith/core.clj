@@ -1,4 +1,5 @@
-(ns hook-smith.core)
+(ns hook-smith.core
+  (:require [hook-smith.blueprint :as blueprint]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -10,9 +11,14 @@
   (println "  journal")
   (println ""))
 
-(defn blueprint [args]
-  (println "Drafting blueprint...")
-  (println "Args:" args))
+(defn blueprint [path]
+  (println "Drafting blueprints...")
+  
+  (let [blueprint-specs [["concepts" blueprint/concepts-blueprint]
+                         ["keysets" blueprint/keysets-blueprint]
+                         ["frames" blueprint/frames-blueprint]]]
+    
+    (mapv (partial blueprint/generate-blueprint-file path) blueprint-specs)))
 
 (defn forge [args]
   (println "Forging frames...")
@@ -41,5 +47,8 @@
     (empty? args) (print-usage)
     :else (let [command (first args)
                 remaining-args (rest args)
-                command-fn (handle-command command)]
-            (command-fn remaining-args))))
+                command-fn (handle-command command)
+                path (System/getProperty "user.dir")
+                full-path (str path "/hook")
+                args-with-path (concat [full-path] remaining-args)]
+            (apply command-fn args-with-path))))

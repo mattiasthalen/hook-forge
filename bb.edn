@@ -1,4 +1,5 @@
 {:paths ["src" "test"]
+ :deps {clj-yaml/clj-yaml {:mvn/version "0.4.0"}}
 
  :tasks {test {:task (exec 'cognitect.test-runner.api/test)
                :extra-deps {io.github.cognitect-labs/test-runner

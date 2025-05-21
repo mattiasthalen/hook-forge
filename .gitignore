@@ -17,10 +17,10 @@ pom.xml.asc
 .nrepl-*
 .DS_Store
 
-.calva/output-window
-.calva/repl.calva-repl
-.lsp/.cache
-.clj-kondo/.cache
+.calva/
+.calva/
+.lsp/
+.clj-kondo/
 
-*.pdf
-A Brief Introduction To Hook.txt
+# Generated artifacts
+hook/
