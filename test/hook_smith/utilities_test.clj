@@ -26,8 +26,6 @@
 
 (use-fixtures :each temp-dir-fixture)
 
-(use-fixtures :each temp-dir-fixture)
-
 (deftest convert-map-to-yaml-test
   (testing "Converts a map to YAML format"
     (let [yaml-string (utilities/convert-map-to-yaml {:project_name "Test Project"
@@ -38,6 +36,49 @@
       (is (re-find #"concepts:" yaml-string))
       (is (re-find #"- name: concept1" yaml-string))
       (is (re-find #"type: core" yaml-string)))))
+
+(deftest count-leading-whitespace-test
+  (testing "Counts leading whitespace characters"
+    (is (= 0 (utilities/count-leading-whitespace "hello")))
+    (is (= 2 (utilities/count-leading-whitespace "  hello")))
+    (is (= 2 (utilities/count-leading-whitespace "\t\thello")))
+    (is (= 4 (utilities/count-leading-whitespace "    mixed  spaces")))
+    (is (= 3 (utilities/count-leading-whitespace " \t hello")))))
+
+(deftest dedented?-test
+  (testing "Detects when a line is dedented relative to another"
+    (is (utilities/dedented? "hello" "  hello"))
+    (is (utilities/dedented? "\thello" "\t\thello"))
+    (is (not (utilities/dedented? "  hello" "hello")))
+    (is (not (utilities/dedented? "  hello" "  hello")))
+    (is (utilities/dedented? " hello" "   hello"))))
+
+(deftest append-with-blank-on-dedent-test
+  (testing "Adds blank line when dedent is detected"
+    (is (= ["hello"] (utilities/append-with-blank-on-dedent [] "hello")))
+    (is (= ["  hello" "  world"] (utilities/append-with-blank-on-dedent ["  hello"] "  world")))
+    (is (= ["  hello" "" "hello"] (utilities/append-with-blank-on-dedent ["  hello"] "hello")))
+    (is (= ["hello" "  world"] (utilities/append-with-blank-on-dedent ["hello"] "  world"))))
+  
+  (testing "Works with multiple appends"
+    (let [result (-> []
+                     (utilities/append-with-blank-on-dedent "parent:")
+                     (utilities/append-with-blank-on-dedent "  child1:")
+                     (utilities/append-with-blank-on-dedent "  child2:")
+                     (utilities/append-with-blank-on-dedent "sibling:"))]
+      (is (= ["parent:" "  child1:" "  child2:" "" "sibling:"] result)))))
+
+(deftest separate-blocks-on-dedent-test
+  (testing "Inserts blank lines when indentation decreases"
+    (is (= "hello\n  world\n  more\n\nless" 
+           (utilities/separate-blocks-on-dedent "hello\n  world\n  more\nless")))
+    
+    (is (= "parent:\n  child1: value1\n  child2: value2\n\nanother-parent:\n  child1: value1"
+           (utilities/separate-blocks-on-dedent "parent:\n  child1: value1\n  child2: value2\nanother-parent:\n  child1: value1")))
+    
+    (testing "Multiple levels of indentation"
+      (is (= "level1:\n  level2:\n    level3: value\n\n  level2b: value\n\nlevel1b: value"
+             (utilities/separate-blocks-on-dedent "level1:\n  level2:\n    level3: value\n  level2b: value\nlevel1b: value")))))
 
 (deftest ensure-parent-dirs-test
   (testing "Creates parent directories when they don't exist"
@@ -104,4 +145,4 @@
         (let [output (with-out-str-custom #(is (nil? (utilities/safe-save file-path new-content))))]
           (is (.exists (io/file file-path)))
           (is (= initial-content (slurp file-path)))
-          (is (re-find #"Operation cancelled" output)))))))
+          (is (re-find #"Operation cancelled" output))))))))

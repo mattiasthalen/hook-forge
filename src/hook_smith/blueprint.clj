@@ -120,8 +120,10 @@
 
 (defn generate-blueprint-file
   "Generate a single blueprint file from blueprint data"
-  [path [name blueprint-data]]
-  (let [filepath (str path "/" name ".yaml")
-        yaml-content (utilities/convert-map-to-yaml blueprint-data)]
-    (utilities/safe-save filepath yaml-content)
-    filepath))
+  [path [name data]]
+  (let [filepath (str path "/" name ".yaml")]
+    
+    (->> data
+         (utilities/convert-map-to-yaml)
+         (utilities/separate-blocks-on-dedent)
+         (utilities/safe-save filepath))))

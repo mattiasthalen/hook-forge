@@ -41,6 +41,35 @@
       (save-with-notification file-path content))))
 
 (defn convert-map-to-yaml
-  "Converts a map to YAML format."
+  "Converts a map to YAML format with blank lines when indentation decreases for better readability."
   [data]
   (yaml/generate-string data :dumper-options {:flow-style :block}))
+
+(defn count-leading-whitespace
+  "Return the number of leading whitespace chars (spaces or tabs) in `line`."
+  [line]
+  (count (re-find #"^[ \t]*" line)))  ;; only spaces or tabs
+
+(defn dedented?
+  "True if `curr` is strictly less indented than `prev`."
+  [curr prev]
+  (< (count-leading-whitespace curr)
+     (count-leading-whitespace prev)))
+
+(defn append-with-blank-on-dedent
+  "Reducer fn: given accumulated lines `acc` and a new `line`,
+  if `line` is dedented relative to the last of `acc`, conj a blank
+  line then `line`; otherwise just conj `line`."
+  [acc line]
+  (if (and (seq acc)
+           (dedented? line (peek acc)))
+    (conj acc "" line)
+    (conj acc line)))
+
+(defn separate-blocks-on-dedent
+  "Split string `s` into lines, insert blank lines whenever
+  indentation decreases, and re‑join into one string."
+  [s]
+  (->> (str/split-lines s)
+       (reduce append-with-blank-on-dedent [])
+       (str/join "\n")))
