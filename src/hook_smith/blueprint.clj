@@ -72,7 +72,7 @@
              :primary false
              :concept "customer"
              :qualifier "name"
-             :keyset "customer"
+             :keyset "source.customer.name"
              :business_key_field "name"}]}
    {:name "frame__source__orders"
     :source_system "source"

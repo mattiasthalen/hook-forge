@@ -50,10 +50,8 @@
 
 (deftest forge-test
   (testing "forge command outputs expected messages"
-    (let [output (with-out-str-custom #(core/forge ["--frames" "test.yaml"]))]
-      (is (re-find #"Forging frames" output))
-      (is (re-find #"Args:" output))
-      (is (re-find #"--frames test.yaml" output)))))
+    (let [output (with-out-str-custom #(core/forge *test-temp-dir*))]
+      (is (re-find #"Forging frames" output)))))
 
 (deftest span-test
   (testing "span command outputs expected messages"

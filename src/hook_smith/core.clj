@@ -1,5 +1,6 @@
 (ns hook-smith.core
-  (:require [hook-smith.blueprint :as blueprint]))
+  (:require [hook-smith.blueprint :as blueprint]
+            [hook-smith.frame :as frame]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -20,9 +21,9 @@
     
     (mapv (partial blueprint/generate-blueprint-file path) blueprint-specs)))
 
-(defn forge [args]
+(defn forge [path]
   (println "Forging frames...")
-  (println "Args:" args))
+  (frame/generate-hook-qvs path))
 
 (defn span [args]
   (println "Building bridge...")
