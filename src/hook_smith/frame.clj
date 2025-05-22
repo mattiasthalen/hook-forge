@@ -1,0 +1,82 @@
+(ns hook-smith.frame
+  (:require 
+            [clojure.string :as str]
+            [hook-smith.utilities :as utilities]))
+
+(defn generate-frame-header
+  "Generate the header section for a frame in the QVS script"
+  [frame]
+  (let [{:keys [name source_path target_path]} frame]
+    (str "Trace\n"
+         "============================================================\n"
+         "ORGANIZING: \n"
+         "Table: " name "\n"
+         "Source: " source_path "\n"
+         "Target: " target_path "\n"
+         "============================================================\n"
+         ";\n\n"
+         "[" name "]:\n"
+         "Load\n")))
+
+(defn generate-hook-field
+  "Generate a QVS field definition for a hook"
+  [hook]
+  (let [{:keys [name keyset business_key_field]} hook]
+    (str "\t'" keyset "' & Text([" business_key_field "])\tAs [" name "]")))
+
+(defn generate-frame-hooks
+  "Generate the hook fields section for a frame"
+  [frame]
+  (let [hooks (:hooks frame)
+        hook-fields (map generate-hook-field hooks)]
+    (str/join "\n," hook-fields)))
+
+(defn generate-composite-hooks
+  "Generate composite hook definitions"
+  [frame]
+  (when-let [composite-hooks (:composite_hooks frame)]
+    (let [composite-sections (map (fn [composite]
+                                    (let [{:keys [name hooks]} composite
+                                          hook-refs (map #(str "[" % "]") hooks)]
+                                      (str "\t" (str/join " & '~' & " hook-refs) "\tAs [" name "]")))
+                                  composite-hooks)]
+      (when (seq composite-sections)
+        (str (str/join "\n" composite-sections)
+             "\n,\t*"
+             "\n;\n\nLoad")))))
+
+(defn generate-frame-script
+  "Generate the complete QVS script for a single frame"
+  [frame]
+  (let [header (generate-frame-header frame)
+        composite-hooks-script (generate-composite-hooks frame)
+        hooks (generate-frame-hooks frame)]
+    (str 
+     header
+     (if composite-hooks-script
+       composite-hooks-script
+       "")
+     (when hooks 
+       (str (if composite-hooks-script "\n," "") 
+            hooks))
+     "\n,\t*\n\n"
+     "From\n"
+     "\t[" (:source_path frame) "] (qvd)\n"
+     ";\n\n"
+     "Store [" (:name frame) "] Into '" (:target_path frame) "' (qvd);\n"
+     "Drop Table [" (:name frame) "];\n\n")))
+
+(defn generate-qvs-script
+  "Generate the complete QVS script from the frames data"
+  [frames]
+  (str/join "\n" (map generate-frame-script frames)))
+
+(defn generate-hook-qvs
+  "Main function to read YAML configuration files and generate the hook.qvs script"
+  [path]
+  (let [filepath (str path "/generated-hook.qvs")]
+    (->> path
+         (utilities/read-yaml-files-in-directory)
+         (:frames)
+         (generate-qvs-script)
+         (utilities/safe-save filepath))))

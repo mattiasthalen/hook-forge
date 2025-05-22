@@ -1,6 +1,7 @@
 (ns hook-smith.utilities
   (:require [clojure.string :as str]
-            [clj-yaml.core :as yaml]))
+            [clj-yaml.core :as yaml]
+            [clojure.java.io :as io]))
 
 (defn- ensure-parent-dirs
   "Create parent directories if they don't exist."
@@ -73,3 +74,22 @@
   (->> (str/split-lines s)
        (reduce append-with-blank-on-dedent [])
        (str/join "\n")))
+
+(defn read-yaml-file
+  "Read a YAML file and parse its contents into Clojure data structures"
+  [file-path]
+  (when (.exists (io/file file-path))
+    (yaml/parse-string (slurp file-path))))
+
+(defn read-yaml-files-in-directory
+  "Read all yaml files in a directory and return a map with filenames as keys 
+   and parsed content as values"
+  [dir-path]
+  (let [dir (io/file dir-path)
+        yaml-files (filter #(str/ends-with? (.getName %) ".yaml")
+                           (.listFiles dir))]
+    (reduce (fn [acc file]
+              (let [filename (str/replace (.getName file) #"\.yaml$" "")]
+                (assoc acc (keyword filename) (read-yaml-file (.getPath file)))))
+            {}
+            yaml-files)))
