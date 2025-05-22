@@ -8,7 +8,7 @@
   (println "Available commands:")
   (println "  blueprint")
   (println "  forge")
-  (println "  span")
+  (println "  uss")
   (println "  journal")
   (println ""))
 
@@ -25,8 +25,8 @@
   (println "Forging frames...")
   (frame/generate-hook-qvs path))
 
-(defn span [args]
-  (println "Building bridge...")
+(defn uss [args]
+  (println "Building Unified Star Schema")
   (println "Args:" args))
 
 (defn journal [args]

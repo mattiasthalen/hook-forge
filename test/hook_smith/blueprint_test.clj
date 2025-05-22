@@ -50,15 +50,16 @@
       (is (every? #(contains? % :name) frames))
       (is (every? #(contains? % :source_system) frames))
       (is (every? #(contains? % :source_table) frames))
-      (is (every? #(contains? % :source_path) frames))
-      (is (every? #(contains? % :target_path) frames))
-      (is (some #(= (:name %) "frame__source__products") frames))
-      (is (some #(= (:name %) "frame__source__customers") frames))
-      (is (some #(= (:name %) "frame__source__orders") frames))
-      (is (some #(= (:name %) "frame__source__order_lines") frames))
+      (is (every? #(contains? % :target_table) frames))
+      (is (every? #(= (:validity_fields %) {:valid_from "Record Valid From"
+                                            :valid_to "Record Valid To"}) frames))
+      (is (some #(= (:name %) "source__products") frames))
+      (is (some #(= (:name %) "source__customers") frames))
+      (is (some #(= (:name %) "source__orders") frames))
+      (is (some #(= (:name %) "source__order_lines") frames))
       
       ;; Test hooks and composite hooks
-      (let [order-lines (first (filter #(= (:name %) "frame__source__order_lines") frames))]
+      (let [order-lines (first (filter #(= (:name %) "source__order_lines") frames))]
         (is (contains? order-lines :hooks))
         (is (contains? order-lines :composite_hooks))
         (is (vector? (:hooks order-lines)))

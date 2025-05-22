@@ -27,13 +27,18 @@
   (println (str "File saved: " file-path))
   file-path)
 
+(defn file-exists?
+  "Return true if the file at file-path exists."
+  [file-path]
+  (.exists (java.io.File. file-path)))
+
 (defn safe-save
   "Safely save content to a file, prompting for confirmation if the file exists.
    Creates parent directories if they don't exist."
   [file-path content]
   (let [file (java.io.File. file-path)]
     (ensure-parent-dirs file)
-    (if (.exists file)
+    (if (file-exists? file-path)
       (if (confirm-overwrite file-path)
         (save-with-notification file-path content)
         (do 

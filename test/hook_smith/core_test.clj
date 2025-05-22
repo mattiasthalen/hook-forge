@@ -32,7 +32,7 @@
       (is (re-find #"Usage: hook <command>" output))
       (is (re-find #"blueprint" output))
       (is (re-find #"forge" output))
-      (is (re-find #"span" output))
+      (is (re-find #"uss" output))
       (is (re-find #"journal" output)))))
 
 (deftest blueprint-test
@@ -53,10 +53,10 @@
     (let [output (with-out-str-custom #(core/forge *test-temp-dir*))]
       (is (re-find #"Forging frames" output)))))
 
-(deftest span-test
-  (testing "span command outputs expected messages"
-    (let [output (with-out-str-custom #(core/span ["--source" "frames" "--target" "hooks"]))]
-      (is (re-find #"Building bridge" output))
+(deftest uss-test
+  (testing "uss command outputs expected messages"
+    (let [output (with-out-str-custom #(core/uss ["--source" "frames" "--target" "hooks"]))]
+      (is (re-find #"Building Unified Star Schema" output))
       (is (re-find #"--source frames --target hooks" output)))))
 
 (deftest journal-test
