@@ -26,6 +26,8 @@
 
 (use-fixtures :each temp-dir-fixture)
 
+;; TESTS
+
 (deftest convert-map-to-yaml-test
   (testing "Converts a map to YAML format"
     (let [yaml-string (utilities/convert-map-to-yaml {:project_name "Test Project"
@@ -78,7 +80,7 @@
     
     (testing "Multiple levels of indentation"
       (is (= "level1:\n  level2:\n    level3: value\n\n  level2b: value\n\nlevel1b: value"
-             (utilities/separate-blocks-on-dedent "level1:\n  level2:\n    level3: value\n  level2b: value\nlevel1b: value")))))
+             (utilities/separate-blocks-on-dedent "level1:\n  level2:\n    level3: value\n  level2b: value\nlevel1b: value"))))))
 
 (deftest ensure-parent-dirs-test
   (testing "Creates parent directories when they don't exist"
@@ -119,7 +121,7 @@
       (is (.exists (io/file file-path)))
       (is (= content (slurp file-path)))
       (is (re-find #"Creating directory:" output))
-      (is (re-find #"File saved:" output))))
+      (is (re-find #"File saved:" output)))))
   
   (testing "Overwrites file when user confirms"
     (let [file-path (str (io/file *test-temp-dir* "existing.txt"))
@@ -145,4 +147,24 @@
         (let [output (with-out-str-custom #(is (nil? (utilities/safe-save file-path new-content))))]
           (is (.exists (io/file file-path)))
           (is (= initial-content (slurp file-path)))
-          (is (re-find #"Operation cancelled" output))))))))
+          (is (re-find #"Operation cancelled" output))))))
+
+(deftest read-yaml-file-test
+  (testing "Reads and parses YAML file contents"
+    (let [file-path (str (io/file *test-temp-dir* "test.yaml"))
+          yaml-content "foo: bar\nnum: 42"
+          _ (spit file-path yaml-content)
+          result (utilities/read-yaml-file file-path)]
+      (is (= {:foo "bar" :num 42} result))))
+  (testing "Returns nil for non-existent file"
+    (let [file-path (str (io/file *test-temp-dir* "does-not-exist.yaml"))]
+      (is (nil? (utilities/read-yaml-file file-path))))))
+
+(deftest read-yaml-files-in-directory-test
+  (testing "Reads all YAML files in a directory and returns a map keyed by filename"
+    (let [file1 (io/file *test-temp-dir* "a.yaml")
+          file2 (io/file *test-temp-dir* "b.yaml")
+          _ (spit file1 "foo: 1")
+          _ (spit file2 "bar: 2")
+          result (utilities/read-yaml-files-in-directory *test-temp-dir*)]
+      (is (= {:a {:foo 1} :b {:bar 2}} result)))))
