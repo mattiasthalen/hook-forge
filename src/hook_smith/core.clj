@@ -1,6 +1,7 @@
 (ns hook-smith.core
   (:require [hook-smith.blueprint :as blueprint]
-            [hook-smith.frame :as frame]))
+            [hook-smith.frame :as frame]
+            [hook-smith.uss :as uss]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -25,9 +26,9 @@
   (println "Forging frames...")
   (frame/generate-hook-qvs path))
 
-(defn uss [args]
+(defn uss [path]
   (println "Building Unified Star Schema")
-  (println "Args:" args))
+  (uss/generate-uss-bridge path))
 
 (defn journal [args]
   (println "Writing journal...")

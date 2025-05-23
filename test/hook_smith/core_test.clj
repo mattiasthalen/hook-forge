@@ -2,6 +2,7 @@
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [hook-smith.core :as core]
             [hook-smith.blueprint :as blueprint]
+            [hook-smith.uss :as uss]
             [babashka.fs :as fs])
   (:import [java.io StringWriter]))
 
@@ -55,9 +56,9 @@
 
 (deftest uss-test
   (testing "uss command outputs expected messages"
-    (let [output (with-out-str-custom #(core/uss ["--source" "frames" "--target" "hooks"]))]
-      (is (re-find #"Building Unified Star Schema" output))
-      (is (re-find #"--source frames --target hooks" output)))))
+    (with-redefs [hook-smith.uss/generate-uss-bridge (fn [_] nil)]
+      (let [output (with-out-str-custom #(core/uss *test-temp-dir*))]
+        (is (re-find #"Building Unified Star Schema" output))))))
 
 (deftest journal-test
   (testing "journal command outputs expected messages"
