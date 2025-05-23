@@ -44,10 +44,11 @@
             result (core/blueprint *test-temp-dir*)]
         (is (re-find #"Drafting blueprints" output))
         (is (vector? result))
-        (is (= 3 (count result)))
+        (is (= 4 (count result)))
         (is (some #(re-find #"/concepts\.yaml$" %) result))
         (is (some #(re-find #"/keysets\.yaml$" %) result))
-        (is (some #(re-find #"/frames\.yaml$" %) result))))))
+        (is (some #(re-find #"/frames\.yaml$" %) result))
+        (is (some #(re-find #"/unified-star-schema\.yaml$" %) result))))))
 
 (deftest forge-test
   (testing "forge command outputs expected messages"
