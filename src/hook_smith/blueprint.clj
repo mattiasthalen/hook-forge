@@ -43,8 +43,6 @@
     :source_system "source"
     :source_table "lib://adss/das/source/raw__source__products.qvd"
     :target_table "lib://adss/dab/source/frame__source__products.qvd"
-    :validity_fields {:valid_from "Record Valid From"
-                      :valid_to "Record Valid To"}
     :hooks [{:name "hook__product__id"
              :primary true
              :concept "product"
@@ -62,8 +60,6 @@
     :source_system "source"
     :source_table "lib://adss/das/source/raw__source__customers.qvd"
     :target_table "lib://adss/dab/source/frame__source__customers.qvd"
-    :validity_fields {:valid_from "Record Valid From"
-                      :valid_to "Record Valid To"}
     :hooks [{:name "hook__customer__id"
              :primary true
              :concept "customer"
@@ -80,12 +76,6 @@
     :source_system "source"
     :source_table "lib://adss/das/source/raw__source__orders.qvd"
     :target_table "lib://adss/dab/source/frame__source__orders.qvd"
-    :validity_fields {:valid_from "Record Valid From"
-                      :valid_to "Record Valid To"}
-    :events [{:name "Order Placed On"}
-             {:name "Order Due On"}
-             {:name "Order Delivered On"
-              :field "order_delivered_on"}]
     :hooks [{:name "hook__order__id"
              :primary true
              :concept "order"
@@ -108,8 +98,6 @@
     :source_system "source"
     :source_table "lib://adss/das/source/raw__source__order_lines.qvd"
     :target_table "lib://adss/dab/source/frame__source__order_lines.qvd"
-    :validity_fields {:valid_from "Record Valid From"
-                      :valid_to "Record Valid To"} 
     :hooks [{:name "hook__order__id"
              :primary false
              :concept "order"
@@ -125,6 +113,33 @@
     :composite_hooks [{:name "hook__order__product__id"
                        :primary true
                        :hooks ["hook__order__id" "hook__product__id"]}]}])
+
+(def uss-blueprint
+  {:bridge_path "lib://adss/dar/_bridge.qvd"
+   :peripherals [{:name "source__products"
+                 :source_table "lib://adss/dab/source/frame__source__products.qvd"
+                 :target_table "lib://adss/dar/source__products.qvd"
+                 :valid_from "Record Valid From"
+                 :valid_to "Record Valid To"}
+                {:name "source__customers"
+                 :source_table "lib://adss/dab/source/frame__source__customers.qvd"
+                 :target_table "lib://adss/dar/source__customers.qvd"
+                 :valid_from "Record Valid From"
+                 :valid_to "Record Valid To"}
+                {:name "source__orders"
+                 :source_table "lib://adss/dab/source/frame__source__orders.qvd"
+                 :target_table "lib://adss/dar/source__orders.qvd"
+                 :valid_from "Record Valid From"
+                 :valid_to "Record Valid To"
+                 :events [{:name "Order Placed On"}
+                          {:name "Order Due On"}
+                          {:name "Order Delivered On" 
+                           :field "order_delivered_on"}]}
+                {:name "source__order_lines"
+                 :source_table "lib://adss/dab/source/frame__source__order_lines.qvd"
+                 :target_table "lib://adss/dar/source__order_lines.qvd"
+                 :valid_from "Record Valid From"
+                 :valid_to "Record Valid To"}]})
 
 (defn generate-blueprint-file
   "Generate a single blueprint file from blueprint data"

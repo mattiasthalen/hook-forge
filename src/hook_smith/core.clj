@@ -18,7 +18,8 @@
   
   (let [blueprint-specs [["concepts" blueprint/concepts-blueprint]
                          ["keysets" blueprint/keysets-blueprint]
-                         ["frames" blueprint/frames-blueprint]]]
+                         ["frames" blueprint/frames-blueprint]
+                         ["unified-star-schema" blueprint/uss-blueprint]]]
     
     (mapv (partial blueprint/generate-blueprint-file path) blueprint-specs)))
 
