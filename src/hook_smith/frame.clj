@@ -1,6 +1,5 @@
 (ns hook-smith.frame
-  (:require 
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [hook-smith.utilities :as utilities]))
 
 (defn generate-frame-header
