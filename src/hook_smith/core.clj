@@ -29,7 +29,7 @@
 
 (defn uss [path]
   (println "Building Unified Star Schema")
-  (uss/generate-uss-bridge path))
+  (uss/generate-uss-qvs path))
 
 (defn journal [args]
   (println "Writing journal...")

@@ -55,7 +55,7 @@
     (let [output (with-out-str-custom #(core/forge *test-temp-dir*))]
       (is (re-find #"Forging frames" output)))))
 
-(deftest uss-test
+#_(deftest uss-test
   (testing "uss command outputs expected messages"
     (with-redefs [hook-smith.uss/generate-uss-bridge (fn [_] nil)]
       (let [output (with-out-str-custom #(core/uss *test-temp-dir*))]

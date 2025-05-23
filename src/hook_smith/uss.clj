@@ -1,7 +1,6 @@
 (ns hook-smith.uss
   (:require [clojure.string :as str]
-            [hook-smith.utilities :as utilities]
-            [hook-smith.uss :as uss]))
+            [hook-smith.utilities :as utilities]))
 
 (defn get-bridge-path
   "Get the bridge path from the unified star schema."
@@ -9,16 +8,6 @@
   (->> data
        :unified-star-schema
        :bridge_path))
-
-(defn get-hooks
-  "For each item, combine :hooks and :composite_hooks, keeping only :name and :primary."
-  [items]
-  (mapv (fn [item]
-          (let [hooks (map #(select-keys % [:name :primary]) (or (:hooks item) []))
-                composite (map #(select-keys % [:name :primary]) (or (:composite_hooks item) []))]
-            {:name (:name item)
-             :hooks (vec (concat hooks composite))}))
-        items))
 
 (defn get-hook-names
   "For each item, combine :hooks and :composite_hooks, returning a vector of hook names, the primary hook name, and foreign hook names."
