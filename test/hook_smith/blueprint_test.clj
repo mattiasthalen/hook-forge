@@ -63,7 +63,13 @@
         (is (contains? order-lines :hooks))
         (is (contains? order-lines :composite_hooks))
         (is (vector? (:hooks order-lines)))
-        (is (vector? (:composite_hooks order-lines)))))))
+        (is (vector? (:composite_hooks order-lines))))
+      
+      ;; Test events
+      (let [orders (first (filter #(= (:name %) "source__orders") frames))]
+        (is (vector? (:events orders)))
+        (is (every? map? (:events orders)))
+        (is (every? #(contains? % :name) (:events orders)))))))
 
 (deftest generate-blueprint-file-test
   (testing "generates a YAML file from blueprint data"

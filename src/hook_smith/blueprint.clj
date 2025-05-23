@@ -82,6 +82,10 @@
     :target_table "lib://adss/dab/source/frame__source__orders.qvd"
     :validity_fields {:valid_from "Record Valid From"
                       :valid_to "Record Valid To"}
+    :events [{:name "Order Placed On"}
+             {:name "Order Due On"}
+             {:name "Order Delivered On"
+              :field "order_delivered_on"}]
     :hooks [{:name "hook__order__id"
              :primary true
              :concept "order"
@@ -105,7 +109,7 @@
     :source_table "lib://adss/das/source/raw__source__order_lines.qvd"
     :target_table "lib://adss/dab/source/frame__source__order_lines.qvd"
     :validity_fields {:valid_from "Record Valid From"
-                      :valid_to "Record Valid To"}
+                      :valid_to "Record Valid To"} 
     :hooks [{:name "hook__order__id"
              :primary false
              :concept "order"
