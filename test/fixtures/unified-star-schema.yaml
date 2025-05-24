@@ -1,0 +1,30 @@
+bridge_path: lib://adss/dar/_bridge.qvd
+peripherals:
+- name: source__products
+  source_table: lib://adss/dab/source/frame__source__products.qvd
+  target_table: lib://adss/dar/source__products.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+
+- name: source__customers
+  source_table: lib://adss/dab/source/frame__source__customers.qvd
+  target_table: lib://adss/dar/source__customers.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+
+- name: source__orders
+  source_table: lib://adss/dab/source/frame__source__orders.qvd
+  target_table: lib://adss/dar/source__orders.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+  events:
+  - name: Order Placed On
+  - name: Order Due On
+  - name: Order Delivered On
+    field: order_delivered_on
+
+- name: source__order_lines
+  source_table: lib://adss/dab/source/frame__source__order_lines.qvd
+  target_table: lib://adss/dar/source__order_lines.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To

@@ -1,0 +1,29 @@
+- name: source.product.id
+  concept: product
+  qualifier: id
+  source_system: source
+
+- name: source.product.name
+  concept: product
+  qualifier: name
+  source_system: source
+
+- name: source.customer.id
+  concept: customer
+  qualifier: id
+  source_system: source
+
+- name: source.customer.name
+  concept: customer
+  qualifier: name
+  source_system: source
+
+- name: source.order.id
+  concept: order
+  qualifier: id
+  source_system: source
+
+- name: source.order.order_number
+  concept: order
+  qualifier: order_number
+  source_system: source

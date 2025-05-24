@@ -1,0 +1,8 @@
+- name: product
+  type: core
+
+- name: customer
+  type: core
+
+- name: order
+  type: core
