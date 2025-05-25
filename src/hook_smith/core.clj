@@ -1,7 +1,8 @@
 (ns hook-smith.core
   (:require [hook-smith.blueprint :as blueprint]
             [hook-smith.frame :as frame]
-            [hook-smith.uss :as uss]))
+            [hook-smith.uss :as uss]
+            [hook-smith.utilities :as utilities]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -29,7 +30,11 @@
 
 (defn uss [path]
   (println "Building Unified Star Schema")
-  (uss/generate-uss-qvs path))
+  (let [filepath (str path "/generated-uss.qvs")] 
+    (->> path
+         (utilities/read-yaml-files-in-directory)
+         (uss/generate-uss-qvs)
+         (utilities/safe-save filepath))))
 
 (defn journal [args]
   (println "Writing journal...")
