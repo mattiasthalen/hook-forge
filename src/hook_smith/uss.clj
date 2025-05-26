@@ -158,27 +158,27 @@
     (str "\nWhere\n"
          "\t1 = 1\n"
          (apply str
-           (for [[rvf rvt] pairs]
-             (str "\n\tAnd " left-valid-from " <= " rvt "\n"
-                  "\tAnd " left-valid-to " >= " rvf "\n"))))))
+                (for [[rvf rvt] pairs]
+                  (str "\n\tAnd " left-valid-from " <= " rvt "\n"
+                       "\tAnd " left-valid-to " >= " rvf "\n"))))))
 
 (defn generate-bridge-concat [name primary-hook pit-keys valid-froms valid-tos record-valid-from record-valid-to]
-  (let [valid-from-alias (str "["record-valid-from" ("name")]")
-        valid-to-alias (str "["record-valid-to" ("name")]")
+  (let [valid-from-alias (str "[" record-valid-from " (" name ")]")
+        valid-to-alias (str "[" record-valid-to " (" name ")]")
         valid-froms (map #(str "[" % "]") valid-froms)
         valid-tos (map #(str "[" % "]") valid-tos)
         load-valid-from (if (> (count valid-froms) 0)
-                          (str "\n\tRangeMax(\n" 
+                          (str "\n\tRangeMax(\n"
                                "\t\t" valid-from-alias "\n\t,\t"
                                (str/join "\n\t,\t" valid-froms)
                                "\n\t)")
                           (str "\t" valid-from-alias))
         load-valid-to (if (> (count valid-tos) 0)
-                          (str "\n\tRangeMin(\n"
-                               "\t\t" valid-to-alias "\n\t,\t"
-                               (str/join "\n\t,\t" valid-tos)
-                               "\n\t)")
-                          (str "\t" valid-to-alias))
+                        (str "\n\tRangeMin(\n"
+                             "\t\t" valid-to-alias "\n\t,\t"
+                             (str/join "\n\t,\t" valid-tos)
+                             "\n\t)")
+                        (str "\t" valid-to-alias))
         where-clause (if (> (count valid-froms) 0)
                        (generate-bridge-where-clause
                         valid-from-alias
@@ -193,7 +193,7 @@
          "\t\t[Peripheral]\n"
          "\t,\t[pit_" primary-hook "]\n"
          (if (> (count pit-keys) 0)
-           (str (str/join "\n" (map #(str "\t,\t[" % "]") pit-keys)) "\n" )
+           (str (str/join "\n" (map #(str "\t,\t[" % "]") pit-keys)) "\n")
            nil)
          "\t)\tAs [key__bridge]\n\n"
          ",\t[pit_" primary-hook "]\n"
@@ -242,7 +242,110 @@
         frames (get config :frames)]
     (map #(generate-peripheral % frames peripherals) peripherals)))
 
+(def generate-event-header
+  (str
+   "Trace\n"
+   "------------------------------------------------------------\n"
+   "Adding events to bridge\n"
+   "------------------------------------------------------------\n"
+   ";\n\n"
+   "[events]:\n"
+   "Load\n"
+   "\tNull()\tAs [key__bridge]"
+   ",\tNull()\tAs [hook__epoch__date]\n"
+   "\n"
+   "AutoGenerate 0\n"
+   ";"))
+
+(defn generate-event-load [source-table primary-key event record-valid-from]
+  (let [event-alias (get event :name)
+        event-field (get event :field)
+        event-load (if (nil? event-field) event-alias event-field)]
+    (str "["event-alias"]:\n"
+         "NoConcatenate\n"
+         "Load\n"
+         "\t[key__bridge]\n"
+         "\t[pit_" primary-key "]\n"
+         "\n"
+         "Resident\n"
+         "\t[_bridge]\n"
+          "\n"
+          "Where\n"
+          "\t1 = 1\n"
+          "\tAnd Len([pit_" primary-key "]) > 0\n"
+         ";\n"
+         "\n"
+         "Left Join(["event-alias"])\n"
+         "Load\n"
+         ",\tHash256([" primary-key "], [" record-valid-from "])\tAs [pit_" primary-key "]\n"
+         ",\t1\tAs [Event: " event-alias "]\n"
+         ",\t'epoch.date|' & [" event-load "]\tAs [hook__epoch__date]\n"
+         "\nFrom\n"
+         "\t[" source-table "] (qvd)\n"
+         "\n"
+         "Where\n"
+         "\t1 = 1\n"
+         "\tAnd Len([" event-load "]) > 0\n"
+         ";\n"
+         "\n"
+         "Concatenate([events])\n"
+         "Load * Resident [" event-alias "];\n"
+         "Drop Table [" event-alias "];\n")))
+
+(defn generate-event-loads [peripheral frames]
+  (let [name (get peripheral :name)
+        source-table (get peripheral :source_table)
+        record-valid-from (get peripheral :valid_from)
+        events (get peripheral :events)
+        frame (first (filter #(= (:name %) name) frames))
+        primary-hook (get-primary-hook (concat (:hooks frame) (:composite_hooks frame)))]
+    (str/join "\n"
+              (map #(generate-event-load source-table primary-hook % record-valid-from) events))))
+
+(defn generate-event-bridge [peripherals]
+  (let [events (mapcat #(get % :events) peripherals)
+        event-names (map #(get % :name) events)]
+    (str "Left Join([events])\n"
+         "Load * Resident [_bridge];\n"
+         "\n"
+         "Left Join([_bridge]):\n"
+         "Load\n"
+         "\t[key__bridge]\n"
+         ",\t[hook__epoch__date]\n"
+         ",\t" (str/join "\n,\t" (map #(str "Count([Event: " % "])\tAs [Event: " % "]") event-names))
+         "\n\n"
+         "Resident\n"
+         "\t[events]\n"
+         "\n"
+         "Group By\n"
+         "\t[key__bridge]\n"
+         ",\t[hook__epoch__date]\n"
+         ";"
+         "\n\n"
+         "Drop Table [events];")))
+
+(defn generate-event-section [config]
+  (let [uss (get config :unified-star-schema)
+        frames (get config :frames)
+        peripherals (get uss :peripherals)]
+    (str generate-event-header
+         "\n"
+         (str/join "\n"
+                   (map #(generate-event-loads % frames) peripherals))
+         "\n"
+         (generate-event-bridge peripherals))))
+
+(defn generate-uss-footer [config]
+  (let [uss (get config :unified-star-schema)
+        bridge-path (get uss :bridge_path)]
+    (str "Store [_bridge] Into '" bridge-path "' (qvd);\n"
+         "Drop Table [_bridge];")))
+
 (defn generate-uss-qvs [config]
   (str generate-uss-header
        "\n"
-       (str/join "\n" (generate-peripherals config))))
+       (str/join "\n" (generate-peripherals config))
+       "\n"
+       (generate-event-section config)
+       "\n\n"
+       (generate-uss-footer config)))
