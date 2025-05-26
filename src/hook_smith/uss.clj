@@ -69,9 +69,8 @@
                          (concat (:hooks frame) (:composite_hooks frame))))
                  frames)))
 
-(defn get-left-join-script
-  "Recursively generates Left Join Qlik script for all foreign hooks, in dependency order, avoiding cycles. 
-   Joins are emitted for direct foreign hooks in order, then their dependencies."
+(defn get-dependencies
+  "Recursively generates a list of maps {:name :primary-key :left-join} for all foreign hooks, in dependency order, avoiding cycles."
   [frames bridge-table foreign-hook-name visited]
   (let [frame (find-frame-by-primary-hook frames foreign-hook-name)]
     (if (or (nil? frame) (contains? visited (:name frame)))
@@ -80,20 +79,25 @@
             foreign-hooks (get-foreign-hooks (:hooks frame))
             qvd-path (get frame :source_table)
             join-script (str
-              "Left Join([" bridge-table "])\n"
-              "Load\n"
-              "\t[" primary-hook "]\n"
-              ",\tHash256([" primary-hook "], [Record Valid From])\tAs [pit_" primary-hook "]\n"
-              (load-hooks foreign-hooks) "\n"
-              ",\t[Record Valid From]\tAs [Record Valid From (" (:name frame) ")]\n"
-              ",\t[Record Valid To]\tAs [Record Valid To (" (:name frame) ")]\n"
-              "\nFrom\n"
-              "\t[" qvd-path "] (qvd)\n"
-              ";\n\n")
-            visited' (conj visited (:name frame))]
+                         "Left Join([" bridge-table "])\n"
+                         "Load\n"
+                         "\t[" primary-hook "]\n"
+                         ",\tHash256([" primary-hook "], [Record Valid From])\tAs [pit_" primary-hook "]\n"
+                         (load-hooks foreign-hooks) "\n"
+                         ",\t[Record Valid From]\tAs [Record Valid From (" (:name frame) ")]\n"
+                         ",\t[Record Valid To]\tAs [Record Valid To (" (:name frame) ")]\n"
+                         "\nFrom\n"
+                         "\t[" qvd-path "] (qvd)\n"
+                         ";\n\n")
+            visited' (conj visited (get frame :name))
+            this-join {:name (get frame :name)
+                       :primary-hook primary-hook
+                       :valid-from (get frame :valid_from)
+                       :valid-to (get frame :valid_to)
+                       :left-join join-script}]
         (cons
-          join-script
-          (mapcat #(get-left-join-script frames bridge-table % visited') foreign-hooks))))))
+         this-join
+         (mapcat #(get-dependencies frames bridge-table % visited') foreign-hooks))))))
 
 (defn generate-peripheral-header [name]
   (str "Trace\n"
@@ -121,22 +125,26 @@
 (defn generate-bridge-load
   [name primary-hook foreign-hooks record_valid_from record_valid_to frames]
   (let [bridge-table (str "bridge__" name)
-        left-joins (mapcat #(get-left-join-script frames bridge-table % #{}) foreign-hooks)]
-    (str "// Generate bridge\n"
-         "[" bridge-table "]:\n"
-         "Load\n"
-         "\t'" name "'\tAs [Peripheral]\n"
-         ",\t[pit_" primary-hook "]\n"
-         (load-hooks foreign-hooks) "\n"
-         ",\t[" record_valid_from " (" name ")]\n"
-         ",\t[" record_valid_to " (" name ")]\n"
-         "\n"
-         "Resident\n"
-         "\t[" name "]\n"
-         ";\n\n"
-         (apply str left-joins))))
+        dependencies (mapcat #(get-dependencies frames bridge-table % #{}) foreign-hooks)
+        left-joins (map :left-join dependencies)
+        primary-keys (map :primary-hook dependencies)
+        pit-keys (map #(str "pit_" %) primary-keys)]
+    {:pit-keys pit-keys
+     :bridge-load (str "// Generate bridge\n"
+                       "[" bridge-table "]:\n"
+                       "Load\n"
+                       "\t'" name "'\tAs [Peripheral]\n"
+                       ",\t[pit_" primary-hook "]\n"
+                       (load-hooks foreign-hooks) "\n"
+                       ",\t[" record_valid_from " (" name ")]\n"
+                       ",\t[" record_valid_to " (" name ")]\n"
+                       "\n"
+                       "Resident\n"
+                       "\t[" name "]\n"
+                       ";\n\n"
+                       (apply str left-joins))}))
 
-(defn generate-bridge-concat [name primary-hook foreign-hooks record_valid_from record_valid_to]
+(defn generate-bridge-concat [name primary-hook pit_keys record_valid_from record_valid_to]
   (str "Concatenate([_bridge])\n"
        "Load\n"
        "\t[Peripheral]\n"
@@ -145,7 +153,7 @@
        "\t,\t[pit_" primary-hook "]\n"
        ")\tAs [key__bridge]\n"
        ",\t[pit_" primary-hook "]\n"
-       (load-hooks foreign-hooks) "\n"
+       (load-hooks pit_keys) "\n"
        "\n"
        ",\t[" record_valid_from " (" name ")]\tAs [" record_valid_from "]\n"
        ",\t[" record_valid_to " (" name ")]\tAs [" record_valid_to "]\n"
@@ -163,7 +171,7 @@
 (defn generate-peripheral [peripheral frames]
   (let [name (get peripheral :name)
         source-table (get peripheral :source_table)
-        target-table (get peripheral :target_table) 
+        target-table (get peripheral :target_table)
         record_valid_from (get peripheral :valid_from)
         record_valid_to (get peripheral :valid_to)
         frame (first (filter #(= (:name %) name) frames))
@@ -171,13 +179,16 @@
         composite-hooks (get frame :composite_hooks)
         all-hooks (concat hooks composite-hooks)
         primary-hook (get-primary-hook all-hooks)
-        foreign-hooks (get-foreign-hooks hooks)]
+        foreign-hooks (get-foreign-hooks hooks)
+        bridge-load-map (generate-bridge-load name primary-hook foreign-hooks record_valid_from record_valid_to frames)
+        pit-keys (get bridge-load-map :pit-keys)
+        bridge-loads (get bridge-load-map :bridge-load)]
     (str
-      (generate-peripheral-header name)
-      (generate-peripheral-load name primary-hook record_valid_from source-table)
-      (generate-bridge-load name primary-hook foreign-hooks record_valid_from record_valid_to frames)
-      (generate-bridge-concat name primary-hook foreign-hooks record_valid_from record_valid_to)
-      (generate-store-peripheral name target-table))))
+     (generate-peripheral-header name)
+     (generate-peripheral-load name primary-hook record_valid_from source-table)
+     bridge-loads
+     (generate-bridge-concat name primary-hook pit-keys record_valid_from record_valid_to)
+     (generate-store-peripheral name target-table))))
 
 (defn generate-peripherals [config]
   (let [uss (get config :unified-star-schema)
