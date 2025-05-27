@@ -34,25 +34,20 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
         if: startsWith(github.ref, 'refs/tags/')
 
-      - name: Set version for manual run
-        run: |
-          echo "VERSION=latest" >> $GITHUB_ENV
-          # Create a temporary tag for the release when running manually
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git tag -f latest
-        if: github.event_name == 'workflow_dispatch'
-        
-      - name: Set version for push to main
+      - name: Set version for non-tagged runs
         run: |
           echo "VERSION=build-${{ github.run_number }}" >> $GITHUB_ENV
-          # Create a build tag for pushes to main
+        if: !startsWith(github.ref, 'refs/tags/')
+
+      - name: Push unique tag for this build
+        run: |
+          # We need to push the tag to the remote repository
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag -f "build-${{ github.run_number }}"
-          # Also update the "latest" tag for main pushes if you want them to be "latest" too
           git tag -f latest
-        if: github.ref == 'refs/heads/main'
+          git push -f origin "build-${{ github.run_number }}" latest
+        if: (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main')
           
       - name: Create uberscript
         run: |
@@ -74,12 +69,27 @@ jobs:
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: Hook Smith ${{ env.VERSION }}
           draft: false
           prerelease: false
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || (github.ref == 'refs/heads/main' && format('build-{0}', github.run_number) || github.ref_name) }}
+          tag_name: ${{ github.ref_name }}
+          files: |
+            hook-smith-${{ env.VERSION }}.clj
+            LICENSE
+            README.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create Build Release
+        id: create_build_release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        with:
+          name: Hook Smith ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          tag_name: build-${{ github.run_number }}
           files: |
             hook-smith-${{ env.VERSION }}.clj
             LICENSE
