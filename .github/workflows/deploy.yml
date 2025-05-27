@@ -1,1 +1,4 @@
+name: Deploy Babashka Uberscript
 
+on:
+  workflow_dispatch:
