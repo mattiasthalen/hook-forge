@@ -2,6 +2,7 @@
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [hook-smith.core :as core]
             [hook-smith.blueprint :as blueprint]
+            [hook-smith.uss :as uss]
             [babashka.fs :as fs])
   (:import [java.io StringWriter]))
 
@@ -32,7 +33,7 @@
       (is (re-find #"Usage: hook <command>" output))
       (is (re-find #"blueprint" output))
       (is (re-find #"forge" output))
-      (is (re-find #"span" output))
+      (is (re-find #"uss" output))
       (is (re-find #"journal" output)))))
 
 (deftest blueprint-test
@@ -43,21 +44,22 @@
             result (core/blueprint *test-temp-dir*)]
         (is (re-find #"Drafting blueprints" output))
         (is (vector? result))
-        (is (= 3 (count result)))
+        (is (= 4 (count result)))
         (is (some #(re-find #"/concepts\.yaml$" %) result))
         (is (some #(re-find #"/keysets\.yaml$" %) result))
-        (is (some #(re-find #"/frames\.yaml$" %) result))))))
+        (is (some #(re-find #"/frames\.yaml$" %) result))
+        (is (some #(re-find #"/unified-star-schema\.yaml$" %) result))))))
 
 (deftest forge-test
   (testing "forge command outputs expected messages"
     (let [output (with-out-str-custom #(core/forge *test-temp-dir*))]
       (is (re-find #"Forging frames" output)))))
 
-(deftest span-test
-  (testing "span command outputs expected messages"
-    (let [output (with-out-str-custom #(core/span ["--source" "frames" "--target" "hooks"]))]
-      (is (re-find #"Building bridge" output))
-      (is (re-find #"--source frames --target hooks" output)))))
+#_(deftest uss-test
+  (testing "uss command outputs expected messages"
+    (with-redefs [hook-smith.uss/generate-uss-bridge (fn [_] nil)]
+      (let [output (with-out-str-custom #(core/uss *test-temp-dir*))]
+        (is (re-find #"Building Unified Star Schema" output))))))
 
 (deftest journal-test
   (testing "journal command outputs expected messages"

@@ -5,8 +5,8 @@
 (deftest generate-frame-header-test
   (testing "Generates correct frame header string"
     (let [frame {:name "TestTable"
-                 :source_path "/source/path"
-                 :target_path "/target/path"}
+                 :source_table "/source/path"
+                 :target_table "/target/path"}
           header (frame/generate-frame-header frame)]
       (is (re-find #"Table: TestTable" header))
       (is (re-find #"Source: /source/path" header))
@@ -40,8 +40,8 @@
 (deftest generate-frame-script-test
   (testing "Generates full QVS script for a frame"
     (let [frame {:name "TestTable"
-                 :source_path "src.qvd"
-                 :target_path "tgt.qvd"
+                 :source_table "src.qvd"
+                 :target_table "tgt.qvd"
                  :hooks [{:name "h1" :keyset "ks1" :business_key_field "bk1"}]
                  :composite_hooks [{:name "comp1" :hooks ["h1"]}]}
           script (frame/generate-frame-script frame)]
@@ -53,8 +53,8 @@
 
 (deftest generate-qvs-script-test
   (testing "Generates QVS script for multiple frames"
-    (let [frames [{:name "A" :source_path "a.qvd" :target_path "a2.qvd" :hooks []}
-                  {:name "B" :source_path "b.qvd" :target_path "b2.qvd" :hooks []}]
+    (let [frames [{:name "A" :source_table "a.qvd" :target_table "a2.qvd" :hooks []}
+                  {:name "B" :source_table "b.qvd" :target_table "b2.qvd" :hooks []}]
           script (frame/generate-qvs-script frames)]
       (is (re-find #"A" script))
       (is (re-find #"B" script))

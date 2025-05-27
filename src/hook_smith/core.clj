@@ -1,6 +1,8 @@
 (ns hook-smith.core
   (:require [hook-smith.blueprint :as blueprint]
-            [hook-smith.frame :as frame]))
+            [hook-smith.frame :as frame]
+            [hook-smith.uss :as uss]
+            [hook-smith.utilities :as utilities]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -8,7 +10,7 @@
   (println "Available commands:")
   (println "  blueprint")
   (println "  forge")
-  (println "  span")
+  (println "  uss")
   (println "  journal")
   (println ""))
 
@@ -17,7 +19,8 @@
   
   (let [blueprint-specs [["concepts" blueprint/concepts-blueprint]
                          ["keysets" blueprint/keysets-blueprint]
-                         ["frames" blueprint/frames-blueprint]]]
+                         ["frames" blueprint/frames-blueprint]
+                         ["unified-star-schema" blueprint/uss-blueprint]]]
     
     (mapv (partial blueprint/generate-blueprint-file path) blueprint-specs)))
 
@@ -25,9 +28,13 @@
   (println "Forging frames...")
   (frame/generate-hook-qvs path))
 
-(defn span [args]
-  (println "Building bridge...")
-  (println "Args:" args))
+(defn uss [path]
+  (println "Building Unified Star Schema")
+  (let [filepath (str path "/generated-uss.qvs")] 
+    (->> path
+         (utilities/read-yaml-files-in-directory)
+         (uss/generate-uss-qvs)
+         (utilities/safe-save filepath))))
 
 (defn journal [args]
   (println "Writing journal...")

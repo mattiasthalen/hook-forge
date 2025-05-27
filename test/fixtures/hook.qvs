@@ -1,0 +1,97 @@
+Trace
+============================================================
+ORGANIZING: 
+Table: source__products
+Source: lib://adss/das/source/raw__source__products.qvd
+Target: lib://adss/dab/source/frame__source__products.qvd
+============================================================
+;
+
+[source__products]:
+Load
+	'source.product.id' & Text([id])	As [hook__product__id]
+,	'source.product.name' & Text([name])	As [hook__product__name]
+,	*
+
+From
+	[lib://adss/das/source/raw__source__products.qvd] (qvd)
+;
+
+Store [source__products] Into 'lib://adss/dab/source/frame__source__products.qvd' (qvd);
+Drop Table [source__products];
+
+
+Trace
+============================================================
+ORGANIZING: 
+Table: source__customers
+Source: lib://adss/das/source/raw__source__customers.qvd
+Target: lib://adss/dab/source/frame__source__customers.qvd
+============================================================
+;
+
+[source__customers]:
+Load
+	'source.customer.id' & Text([id])	As [hook__customer__id]
+,	'source.customer.name' & Text([name])	As [hook__customer__name]
+,	*
+
+From
+	[lib://adss/das/source/raw__source__customers.qvd] (qvd)
+;
+
+Store [source__customers] Into 'lib://adss/dab/source/frame__source__customers.qvd' (qvd);
+Drop Table [source__customers];
+
+
+Trace
+============================================================
+ORGANIZING: 
+Table: source__orders
+Source: lib://adss/das/source/raw__source__orders.qvd
+Target: lib://adss/dab/source/frame__source__orders.qvd
+============================================================
+;
+
+[source__orders]:
+Load
+	'source.order.id' & Text([id])	As [hook__order__id]
+,	'source.order.order_number' & Text([order_number])	As [hook__order__order_number]
+,	'source.customer.id' & Text([customer_id])	As [hook__customer__id]
+,	*
+
+From
+	[lib://adss/das/source/raw__source__orders.qvd] (qvd)
+;
+
+Store [source__orders] Into 'lib://adss/dab/source/frame__source__orders.qvd' (qvd);
+Drop Table [source__orders];
+
+
+Trace
+============================================================
+ORGANIZING: 
+Table: source__order_lines
+Source: lib://adss/das/source/raw__source__order_lines.qvd
+Target: lib://adss/dab/source/frame__source__order_lines.qvd
+============================================================
+;
+
+[source__order_lines]:
+Load
+	[hook__order__id] & '~' & [hook__product__id]	As [hook__order__product__id]
+,	*
+;
+
+Load
+,	'source.order.id' & Text([order_id])	As [hook__order__id]
+,	'source.product.id' & Text([product_id])	As [hook__product__id]
+,	*
+
+From
+	[lib://adss/das/source/raw__source__order_lines.qvd] (qvd)
+;
+
+Store [source__order_lines] Into 'lib://adss/dab/source/frame__source__order_lines.qvd' (qvd);
+Drop Table [source__order_lines];
+

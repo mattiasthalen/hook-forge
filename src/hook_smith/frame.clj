@@ -1,18 +1,17 @@
 (ns hook-smith.frame
-  (:require 
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [hook-smith.utilities :as utilities]))
 
 (defn generate-frame-header
   "Generate the header section for a frame in the QVS script"
   [frame]
-  (let [{:keys [name source_path target_path]} frame]
+  (let [{:keys [name source_table target_table]} frame]
     (str "Trace\n"
          "============================================================\n"
          "ORGANIZING: \n"
          "Table: " name "\n"
-         "Source: " source_path "\n"
-         "Target: " target_path "\n"
+         "Source: " source_table "\n"
+         "Target: " target_table "\n"
          "============================================================\n"
          ";\n\n"
          "[" name "]:\n"
@@ -61,9 +60,9 @@
             hooks))
      "\n,\t*\n\n"
      "From\n"
-     "\t[" (:source_path frame) "] (qvd)\n"
+     "\t[" (:source_table frame) "] (qvd)\n"
      ";\n\n"
-     "Store [" (:name frame) "] Into '" (:target_path frame) "' (qvd);\n"
+     "Store [" (:name frame) "] Into '" (:target_table frame) "' (qvd);\n"
      "Drop Table [" (:name frame) "];\n\n")))
 
 (defn generate-qvs-script

@@ -1,0 +1,521 @@
+Trace
+============================================================
+TRANSFORMING: Generating Unified Star Schema
+============================================================
+;
+
+[_bridge]:
+NoConcatenate
+Load
+	Null() As [Peripheral]
+
+AutoGenerate 0
+;
+
+Sub add_suffix_to_field_names(par__table_name, par__var_name)
+	Let val__fields = '';
+
+	For iter__field_idx = 1 To NoOfFields('$(par__table_name)') - 1
+		Let val__field_name		= FieldName('$(par__table_name)', $(iter__field_idx));
+		Let val__field_alias	= '[$(val__field_name)]';
+
+		If WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then
+			Let val__field_alias	= '[$(val__field_name)] As [$(val__field_alias) ($(par__table_name))]';
+
+		End If
+
+		If Len('$(val__fields)') > 0 Then
+			Let val__fields = '$(val__fields), $(val__field_alias)';
+		
+		Else
+			Let val__fields = '$(val__field_alias)';
+
+		End If
+
+		Let val__field_name		= Null();
+		Let val__field_alias	= Null();
+
+	Next iter__field_idx
+	Let iter__field_idx	= Null();
+
+	Let $(par__var_name) = '$(val__fields)';
+
+	Let val__fields		= Null();
+	Let par__table_name	= Null();
+	Let par__var_name	= Null();
+
+End Sub
+
+Trace
+------------------------------------------------------------
+Processing source__products
+------------------------------------------------------------
+;
+
+[source__products]:
+Load
+	Hash256([hook__product__id], [Record Valid From])	As [pit_hook__product__id]
+,	*
+From
+	[lib://adss/dab/source/frame__source__products.qvd] (qvd)
+;
+
+Call add_suffix_to_field_names('source__products', 'val__fields');
+
+Rename Table [source__products] To [tmp__source__products];
+
+[source__products]:
+NoConcatenate
+Load $(val__fields) Resident [tmp__source__products];
+Drop Table [tmp__source__products];
+
+Let val__fields	= Null();
+
+// Generate bridge
+[bridge__source__products]:
+Load
+	'source__products'	As [Peripheral]
+,	[pit_hook__product__id]
+,	[hook__product__name]
+,	[Record Valid From (source__products)]
+,	[Record Valid To (source__products)]
+
+Resident
+	[source__products]
+;
+
+Concatenate([_bridge])
+Load
+	[Peripheral]
+,	Hash256(
+		[Peripheral]
+	,	[pit_hook__product__id]
+	)	As [key__bridge]
+
+,	[pit_hook__product__id]
+
+,	[Record Valid From (source__products)]	As [Record Valid From]
+,	[Record Valid To (source__products)]	As [Record Valid To]
+
+Resident
+	[bridge__source__products]
+;
+
+Drop Table [bridge__source__products];
+
+// Generate peripheral
+Store [source__products] Into 'lib://adss/dar/source__products.qvd' (qvd);
+Drop Table [source__products];
+
+Trace
+------------------------------------------------------------
+Processing source__customers
+------------------------------------------------------------
+;
+
+[source__customers]:
+Load
+	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	*
+From
+	[lib://adss/dab/source/frame__source__customers.qvd] (qvd)
+;
+
+Call add_suffix_to_field_names('source__customers', 'val__fields');
+
+Rename Table [source__customers] To [tmp__source__customers];
+
+[source__customers]:
+NoConcatenate
+Load $(val__fields) Resident [tmp__source__customers];
+Drop Table [tmp__source__customers];
+
+Let val__fields	= Null();
+
+// Generate bridge
+[bridge__source__customers]:
+Load
+	'source__customers'	As [Peripheral]
+,	[pit_hook__customer__id]
+,	[hook__customer__name]
+,	[Record Valid From (source__customers)]
+,	[Record Valid To (source__customers)]
+
+Resident
+	[source__customers]
+;
+
+Concatenate([_bridge])
+Load
+	[Peripheral]
+,	Hash256(
+		[Peripheral]
+	,	[pit_hook__customer__id]
+	)	As [key__bridge]
+
+,	[pit_hook__customer__id]
+
+,	[Record Valid From (source__customers)]	As [Record Valid From]
+,	[Record Valid To (source__customers)]	As [Record Valid To]
+
+Resident
+	[bridge__source__customers]
+;
+
+Drop Table [bridge__source__customers];
+
+// Generate peripheral
+Store [source__customers] Into 'lib://adss/dar/source__customers.qvd' (qvd);
+Drop Table [source__customers];
+
+Trace
+------------------------------------------------------------
+Processing source__orders
+------------------------------------------------------------
+;
+
+[source__orders]:
+Load
+	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	*
+From
+	[lib://adss/dab/source/frame__source__orders.qvd] (qvd)
+;
+
+Call add_suffix_to_field_names('source__orders', 'val__fields');
+
+Rename Table [source__orders] To [tmp__source__orders];
+
+[source__orders]:
+NoConcatenate
+Load $(val__fields) Resident [tmp__source__orders];
+Drop Table [tmp__source__orders];
+
+Let val__fields	= Null();
+
+// Generate bridge
+[bridge__source__orders]:
+Load
+	'source__orders'	As [Peripheral]
+,	[pit_hook__order__id]
+,	[hook__order__order_number]
+,	[hook__customer__id]
+,	[Record Valid From (source__orders)]
+,	[Record Valid To (source__orders)]
+
+Resident
+	[source__orders]
+;
+
+Left Join([bridge__source__orders])
+Load
+	[hook__customer__id]
+,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__name]
+,	[Record Valid From]	As [Record Valid From (source__customers))]
+,	[Record Valid To]	As [Record Valid To (source__customers))]
+
+From
+	[lib://adss/das/source/raw__source__customers.qvd] (qvd)
+;
+
+Concatenate([_bridge])
+Load
+	[Peripheral]
+,	Hash256(
+		[Peripheral]
+	,	[pit_hook__order__id]
+	,	[pit_hook__customer__id]
+	)	As [key__bridge]
+
+,	[pit_hook__order__id]
+,	[pit_hook__customer__id]
+,
+	RangeMax(
+		[Record Valid From (source__orders)]
+	,	[Record Valid From (source__customers)]
+	)	As [Record Valid From]
+,
+	RangeMin(
+		[Record Valid To (source__orders)]
+	,	[Record Valid To (source__customers)]
+	)	As [Record Valid To]
+
+Resident
+	[bridge__source__orders]
+
+Where
+	1 = 1
+
+	And [Record Valid From (source__orders)] <= [Record Valid To (source__customers)]
+	And [Record Valid To (source__orders)] >= [Record Valid From (source__customers)]
+;
+
+Drop Table [bridge__source__orders];
+
+// Generate peripheral
+Store [source__orders] Into 'lib://adss/dar/source__orders.qvd' (qvd);
+Drop Table [source__orders];
+
+Trace
+------------------------------------------------------------
+Processing source__order_lines
+------------------------------------------------------------
+;
+
+[source__order_lines]:
+Load
+	Hash256([hook__order__product__id], [Record Valid From])	As [pit_hook__order__product__id]
+,	*
+From
+	[lib://adss/dab/source/frame__source__order_lines.qvd] (qvd)
+;
+
+Call add_suffix_to_field_names('source__order_lines', 'val__fields');
+
+Rename Table [source__order_lines] To [tmp__source__order_lines];
+
+[source__order_lines]:
+NoConcatenate
+Load $(val__fields) Resident [tmp__source__order_lines];
+Drop Table [tmp__source__order_lines];
+
+Let val__fields	= Null();
+
+// Generate bridge
+[bridge__source__order_lines]:
+Load
+	'source__order_lines'	As [Peripheral]
+,	[pit_hook__order__product__id]
+,	[hook__order__id]
+,	[hook__product__id]
+,	[Record Valid From (source__order_lines)]
+,	[Record Valid To (source__order_lines)]
+
+Resident
+	[source__order_lines]
+;
+
+Left Join([bridge__source__order_lines])
+Load
+	[hook__order__id]
+,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	[hook__order__order_number]
+,	[hook__customer__id]
+,	[Record Valid From]	As [Record Valid From (source__orders))]
+,	[Record Valid To]	As [Record Valid To (source__orders))]
+
+From
+	[lib://adss/das/source/raw__source__orders.qvd] (qvd)
+;
+
+Left Join([bridge__source__order_lines])
+Load
+	[hook__customer__id]
+,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__name]
+,	[Record Valid From]	As [Record Valid From (source__customers))]
+,	[Record Valid To]	As [Record Valid To (source__customers))]
+
+From
+	[lib://adss/das/source/raw__source__customers.qvd] (qvd)
+;
+
+Left Join([bridge__source__order_lines])
+Load
+	[hook__product__id]
+,	Hash256([hook__product__id], [Record Valid From])	As [pit_hook__product__id]
+,	[hook__product__name]
+,	[Record Valid From]	As [Record Valid From (source__products))]
+,	[Record Valid To]	As [Record Valid To (source__products))]
+
+From
+	[lib://adss/das/source/raw__source__products.qvd] (qvd)
+;
+
+Concatenate([_bridge])
+Load
+	[Peripheral]
+,	Hash256(
+		[Peripheral]
+	,	[pit_hook__order__product__id]
+	,	[pit_hook__order__id]
+	,	[pit_hook__customer__id]
+	,	[pit_hook__product__id]
+	)	As [key__bridge]
+
+,	[pit_hook__order__product__id]
+,	[pit_hook__order__id]
+,	[pit_hook__customer__id]
+,	[pit_hook__product__id]
+,
+	RangeMax(
+		[Record Valid From (source__order_lines)]
+	,	[Record Valid From (source__orders)]
+	,	[Record Valid From (source__customers)]
+	,	[Record Valid From (source__products)]
+	)	As [Record Valid From]
+,
+	RangeMin(
+		[Record Valid To (source__order_lines)]
+	,	[Record Valid To (source__orders)]
+	,	[Record Valid To (source__customers)]
+	,	[Record Valid To (source__products)]
+	)	As [Record Valid To]
+
+Resident
+	[bridge__source__order_lines]
+
+Where
+	1 = 1
+
+	And [Record Valid From (source__order_lines)] <= [Record Valid To (source__orders)]
+	And [Record Valid To (source__order_lines)] >= [Record Valid From (source__orders)]
+
+	And [Record Valid From (source__order_lines)] <= [Record Valid To (source__customers)]
+	And [Record Valid To (source__order_lines)] >= [Record Valid From (source__customers)]
+
+	And [Record Valid From (source__order_lines)] <= [Record Valid To (source__products)]
+	And [Record Valid To (source__order_lines)] >= [Record Valid From (source__products)]
+;
+
+Drop Table [bridge__source__order_lines];
+
+// Generate peripheral
+Store [source__order_lines] Into 'lib://adss/dar/source__order_lines.qvd' (qvd);
+Drop Table [source__order_lines];
+
+Trace
+------------------------------------------------------------
+Adding events to bridge
+------------------------------------------------------------
+;
+
+[events]:
+Load
+	Null()	As [key__bridge],	Null()	As [hook__epoch__date]
+
+AutoGenerate 0
+;
+
+
+[Order Placed On]:
+NoConcatenate
+Load
+	[key__bridge]
+	[pit_hook__order__id]
+
+Resident
+	[_bridge]
+
+Where
+	1 = 1
+	And Len([pit_hook__order__id]) > 0
+;
+
+Left Join([Order Placed On])
+Load
+,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	1	As [Event: Order Placed On]
+,	'epoch.date|' & [Order Placed On]	As [hook__epoch__date]
+
+From
+	[lib://adss/dab/source/frame__source__orders.qvd] (qvd)
+
+Where
+	1 = 1
+	And Len([Order Placed On]) > 0
+;
+
+Concatenate([events])
+Load * Resident [Order Placed On];
+Drop Table [Order Placed On];
+
+[Order Due On]:
+NoConcatenate
+Load
+	[key__bridge]
+	[pit_hook__order__id]
+
+Resident
+	[_bridge]
+
+Where
+	1 = 1
+	And Len([pit_hook__order__id]) > 0
+;
+
+Left Join([Order Due On])
+Load
+,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	1	As [Event: Order Due On]
+,	'epoch.date|' & [Order Due On]	As [hook__epoch__date]
+
+From
+	[lib://adss/dab/source/frame__source__orders.qvd] (qvd)
+
+Where
+	1 = 1
+	And Len([Order Due On]) > 0
+;
+
+Concatenate([events])
+Load * Resident [Order Due On];
+Drop Table [Order Due On];
+
+[Order Delivered On]:
+NoConcatenate
+Load
+	[key__bridge]
+	[pit_hook__order__id]
+
+Resident
+	[_bridge]
+
+Where
+	1 = 1
+	And Len([pit_hook__order__id]) > 0
+;
+
+Left Join([Order Delivered On])
+Load
+,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	1	As [Event: Order Delivered On]
+,	'epoch.date|' & [order_delivered_on]	As [hook__epoch__date]
+
+From
+	[lib://adss/dab/source/frame__source__orders.qvd] (qvd)
+
+Where
+	1 = 1
+	And Len([order_delivered_on]) > 0
+;
+
+Concatenate([events])
+Load * Resident [Order Delivered On];
+Drop Table [Order Delivered On];
+
+
+Left Join([events])
+Load * Resident [_bridge];
+
+Left Join([_bridge]):
+Load
+	[key__bridge]
+,	[hook__epoch__date]
+,	Count([Event: Order Placed On])	As [Event: Order Placed On]
+,	Count([Event: Order Due On])	As [Event: Order Due On]
+,	Count([Event: Order Delivered On])	As [Event: Order Delivered On]
+
+Resident
+	[events]
+
+Group By
+	[key__bridge]
+,	[hook__epoch__date]
+;
+
+Drop Table [events];
+
+Store [_bridge] Into 'lib://adss/dar/_bridge.qvd' (qvd);
+Drop Table [_bridge];

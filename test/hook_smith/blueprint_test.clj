@@ -50,19 +50,48 @@
       (is (every? #(contains? % :name) frames))
       (is (every? #(contains? % :source_system) frames))
       (is (every? #(contains? % :source_table) frames))
-      (is (every? #(contains? % :source_path) frames))
-      (is (every? #(contains? % :target_path) frames))
-      (is (some #(= (:name %) "frame__source__products") frames))
-      (is (some #(= (:name %) "frame__source__customers") frames))
-      (is (some #(= (:name %) "frame__source__orders") frames))
-      (is (some #(= (:name %) "frame__source__order_lines") frames))
+      (is (every? #(contains? % :target_table) frames))
+      (is (some #(= (:name %) "source__products") frames))
+      (is (some #(= (:name %) "source__customers") frames))
+      (is (some #(= (:name %) "source__orders") frames))
+      (is (some #(= (:name %) "source__order_lines") frames))
       
       ;; Test hooks and composite hooks
-      (let [order-lines (first (filter #(= (:name %) "frame__source__order_lines") frames))]
+      (let [order-lines (first (filter #(= (:name %) "source__order_lines") frames))]
         (is (contains? order-lines :hooks))
         (is (contains? order-lines :composite_hooks))
         (is (vector? (:hooks order-lines)))
         (is (vector? (:composite_hooks order-lines)))))))
+
+(deftest uss-blueprint-test
+  (testing "uss blueprint has the expected structure"
+    (let [uss blueprint/uss-blueprint]
+      (is (map? uss))
+      (is (contains? uss :bridge_path))
+      (is (contains? uss :peripherals))
+      
+      (let [peripherals (:peripherals uss)]
+        (is (vector? peripherals))
+        (is (every? map? peripherals))
+        (is (every? #(contains? % :name) peripherals))
+        (is (every? #(contains? % :source_table) peripherals))
+        (is (every? #(contains? % :target_table) peripherals))
+        (is (every? #(contains? % :valid_from) peripherals))
+        (is (every? #(contains? % :valid_to) peripherals))
+        (is (some #(= (:name %) "source__products") peripherals))
+        (is (some #(= (:name %) "source__customers") peripherals))
+        (is (some #(= (:name %) "source__orders") peripherals))
+        (is (some #(= (:name %) "source__order_lines") peripherals))
+        
+        ;; Test events on orders
+        (let [orders (first (filter #(= (:name %) "source__orders") peripherals))]
+          (is (contains? orders :events))
+          (is (vector? (:events orders)))
+          (is (= 3 (count (:events orders))))
+          (is (some #(= (:name %) "Order Placed On") (:events orders)))
+          (is (some #(= (:name %) "Order Due On") (:events orders)))
+          (is (some #(= (:name %) "Order Delivered On") (:events orders)))
+          (is (= "order_delivered_on" (:field (last (:events orders))))))))))
 
 (deftest generate-blueprint-file-test
   (testing "generates a YAML file from blueprint data"

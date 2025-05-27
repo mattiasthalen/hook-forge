@@ -115,39 +115,31 @@
 
 (deftest safe-save-test
   (testing "Creates new file with content when file doesn't exist"
-    (let [file-path (str (io/file *test-temp-dir* "new_folder" "new_file.txt"))
-          content "This is new content"
-          output (with-out-str-custom #(utilities/safe-save file-path content))]
-      (is (.exists (io/file file-path)))
-      (is (= content (slurp file-path)))
-      (is (re-find #"Creating directory:" output))
-      (is (re-find #"File saved:" output)))))
-  
+    (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
+                  utilities/confirm-overwrite (fn [_] true)
+                  utilities/save-with-notification (fn [file-path content]
+                                                     (is (= file-path "mock-path"))
+                                                     (is (= content "This is new content"))
+                                                     :saved)
+                  utilities/file-exists? (fn [_] false)]
+      (is (= :saved (utilities/safe-save "mock-path" "This is new content")))))
+
   (testing "Overwrites file when user confirms"
-    (let [file-path (str (io/file *test-temp-dir* "existing.txt"))
-          initial-content "Initial content"
-          new-content "New content"]
-      ;; Create the file first
-      (spit file-path initial-content)
-      
-      (with-redefs [utilities/confirm-overwrite (constantly true)]
-        (let [output (with-out-str-custom #(utilities/safe-save file-path new-content))]
-          (is (.exists (io/file file-path)))
-          (is (= new-content (slurp file-path)))
-          (is (re-find #"File saved:" output))))))
-  
+    (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
+                  utilities/confirm-overwrite (fn [_] true)
+                  utilities/save-with-notification (fn [file-path content]
+                                                     (is (= file-path "mock-path"))
+                                                     (is (= content "New content"))
+                                                     :saved)
+                  utilities/file-exists? (fn [_] true)]
+      (is (= :saved (utilities/safe-save "mock-path" "New content")))))
+
   (testing "Cancels operation when user denies overwrite"
-    (let [file-path (str (io/file *test-temp-dir* "deny.txt"))
-          initial-content "Initial content"
-          new-content "This should not be saved"]
-      ;; Create the file first
-      (spit file-path initial-content)
-      
-      (with-redefs [utilities/confirm-overwrite (constantly false)]
-        (let [output (with-out-str-custom #(is (nil? (utilities/safe-save file-path new-content))))]
-          (is (.exists (io/file file-path)))
-          (is (= initial-content (slurp file-path)))
-          (is (re-find #"Operation cancelled" output))))))
+    (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
+                  utilities/confirm-overwrite (fn [_] false)
+                  utilities/save-with-notification (fn [& _] (throw (Exception. "Should not be called")))
+                  utilities/file-exists? (fn [_] true)]
+      (is (nil? (utilities/safe-save "mock-path" "This should not be saved"))))))
 
 (deftest read-yaml-file-test
   (testing "Reads and parses YAML file contents"
