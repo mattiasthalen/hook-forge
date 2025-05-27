@@ -44,7 +44,7 @@ flowchart LR
 
     %% Relations
     frame__source__order_lines -- hook__order__id --> frame__source__orders
-    frame__source__order_lines -- hook__order__product__id --> frame__source__products
+    frame__source__order_lines -- hook__order__product__id ---> frame__source__products
 
     frame__source__orders -- hook__customer__id --> frame__source__customers
 
@@ -52,7 +52,7 @@ flowchart LR
 
 ## Unified Star Schema
 ```mermaid
-flowchart LR
+flowchart TD
     %% Entities
     bridge("
         **_BRIDGE**
@@ -71,7 +71,7 @@ flowchart LR
         Record Valid To
     ")
     source__products("
-        **FRAME__SOURCE__PRODUCTS**
+        **SOURCE__PRODUCTS**
         **Primary Key:**
         pit_hook__product__id
         &nbsp;
@@ -82,7 +82,7 @@ flowchart LR
     ")
 
     source__customers("
-        **FRAME__SOURCE__CUSTOMERS**
+        **SOURCE__CUSTOMERS**
         **Primary Key:**
         pit_hook__customer__id
         &nbsp;
@@ -93,7 +93,7 @@ flowchart LR
     ")
 
     source__orders("
-        **FRAME__SOURCE__ORDERS**
+        **SOURCE__ORDERS**
         **Primary Key:**
         pit_hook__order__id
         &nbsp;
@@ -104,7 +104,7 @@ flowchart LR
     ")
 
     source__order_lines("
-        **FRAME__SOURCE__ORDER_LINES**
+        **SOURCE__ORDER_LINES**
         **Primary Key:**
         pit_hook__order__product__id
         &nbsp;
