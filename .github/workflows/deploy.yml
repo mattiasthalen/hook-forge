@@ -29,15 +29,6 @@ jobs:
         with:
           version: '1.3.186'
 
-      - name: Create uberscript
-        run: |
-          # Create the uberscript by specifying the main namespace
-          bb uberscript hook-smith-temp.clj -m hook-smith.core
-          # Make it executable and rename with version
-          chmod +x hook-smith-temp.clj
-          cp hook-smith-temp.clj "hook-smith-${{ env.VERSION || 'dev' }}.clj"
-          chmod +x "hook-smith-${{ env.VERSION || 'dev' }}.clj"
-          
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
@@ -62,6 +53,23 @@ jobs:
           # Also update the "latest" tag for main pushes if you want them to be "latest" too
           git tag -f latest
         if: github.ref == 'refs/heads/main'
+          
+      - name: Create uberscript
+        run: |
+          # Create the uberscript by specifying the main namespace
+          bb uberscript hook-smith-temp.clj -m hook-smith.core
+          # Make it executable and rename with version
+          chmod +x hook-smith-temp.clj
+          # Set default version if not set by previous steps
+          if [ -z "$VERSION" ]; then
+            echo "VERSION=dev" >> $GITHUB_ENV
+          fi
+          # Copy with version in filename
+          cp hook-smith-temp.clj "hook-smith-$VERSION.clj"
+          chmod +x "hook-smith-$VERSION.clj"
+          # Debug output
+          echo "Created file: hook-smith-$VERSION.clj"
+          ls -la "hook-smith-$VERSION.clj"
 
       - name: Create Release
         id: create_release
@@ -73,7 +81,7 @@ jobs:
           prerelease: false
           tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || (github.ref == 'refs/heads/main' && format('build-{0}', github.run_number) || github.ref_name) }}
           files: |
-            hook-smith-${{ env.VERSION || 'dev' }}.clj
+            hook-smith-${{ env.VERSION }}.clj
             LICENSE
             README.md
           token: ${{ secrets.GITHUB_TOKEN }}
