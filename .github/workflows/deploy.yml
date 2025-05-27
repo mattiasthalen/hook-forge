@@ -59,12 +59,14 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag -f "build-${{ github.run_number }}"
+          # Also update the "latest" tag for main pushes if you want them to be "latest" too
+          git tag -f latest
         if: github.ref == 'refs/heads/main'
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         with:
           name: Hook Smith ${{ env.VERSION }}
           draft: false
