@@ -6,12 +6,19 @@ on:
       - 'v*' # Run on tags starting with 'v'
   workflow_dispatch: # Allow manual trigger
 
+# Add permissions needed for releases
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # This ensures all tags are fetched
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -62,3 +69,4 @@ jobs:
             dist/hook-smith
             LICENSE
             README.md
+          token: ${{ secrets.GITHUB_TOKEN }}
