@@ -13,10 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Babashka
-        uses: babashka/setup-babashka@v4
-        with:
-          version: '1.3.186' # Use the latest stable version
+      - name: Babashka (Clojure)
+        uses: tzafrirben/babashka-docker-action@v1.1
 
       - name: Create uberscript
         run: |
