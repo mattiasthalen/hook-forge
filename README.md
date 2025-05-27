@@ -34,7 +34,7 @@ bb hook forge
 bb hook uss
 
 # Generate markdown documentation of your data structure:
-hook journal
+bb hook journal
 ```
 
 ## Blueprint Structure
