@@ -2,7 +2,8 @@
   (:require [hook-smith.blueprint :as blueprint]
             [hook-smith.frame :as frame]
             [hook-smith.uss :as uss]
-            [hook-smith.utilities :as utilities]))
+            [hook-smith.utilities :as utilities]
+            [hook-smith.documentation :as documentation]))
 
 (defn print-usage []
   (println "Usage: hook <command> [options]")
@@ -36,9 +37,13 @@
          (uss/generate-uss-qvs)
          (utilities/safe-save filepath))))
 
-(defn journal [args]
+(defn journal [path]
   (println "Writing journal...")
-  (println "Args:" args))
+  (let [filepath (str path "/generated-documentation.md")]
+     (->> path
+          (utilities/read-yaml-files-in-directory)
+          (documentation/generate-markdown)
+          (utilities/safe-save filepath))))
 
 (defn- handle-command 
   "Functionally processes a command and returns the result function to execute"

@@ -3,6 +3,7 @@
             [hook-smith.core :as core]
             [hook-smith.blueprint :as blueprint]
             [hook-smith.uss :as uss]
+            [hook-smith.documentation :as documentation]
             [babashka.fs :as fs])
   (:import [java.io StringWriter]))
 
@@ -55,17 +56,15 @@
     (let [output (with-out-str-custom #(core/forge *test-temp-dir*))]
       (is (re-find #"Forging frames" output)))))
 
-#_(deftest uss-test
+(deftest uss-test
   (testing "uss command outputs expected messages"
-    (with-redefs [hook-smith.uss/generate-uss-bridge (fn [_] nil)]
-      (let [output (with-out-str-custom #(core/uss *test-temp-dir*))]
-        (is (re-find #"Building Unified Star Schema" output))))))
+    (let [output (with-out-str-custom #(core/uss *test-temp-dir*))]
+      (is (re-find #"Building Unified Star Schema" output)))))
 
 (deftest journal-test
   (testing "journal command outputs expected messages"
-    (let [output (with-out-str-custom #(core/journal ["--output" "docs/"]))]
-      (is (re-find #"Writing journal" output))
-      (is (re-find #"--output docs/" output)))))
+    (let [output (with-out-str-custom #(core/journal *test-temp-dir*))]
+      (is (re-find #"Writing journal" output)))))
 
 (deftest handle-command-test
   (testing "handle-command returns function for known command"
