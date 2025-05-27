@@ -1,4 +1,97 @@
 name: Deploy Babashka Uberscript
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.clj'
+    tags:
+      - 'v*' # Run on tags starting with 'v'
+  workflow_dispatch: # Allow manual trigger
+
+# Add permissions needed for releases
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # This ensures all tags are fetched
+          
+      - name: Install Babashka
+        uses: just-sultanov/setup-babashka@v2
+        with:
+          version: '1.3.186'
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/tags/')
+
+      - name: Set version for non-tagged runs
+        run: |
+          echo "VERSION=build-${{ github.run_number }}" >> $GITHUB_ENV
+        if: "!startsWith(github.ref, 'refs/tags/')"
+
+      - name: Push unique tag for this build
+        run: |
+          # We need to push the tag to the remote repository
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -f "build-${{ github.run_number }}"
+          git tag -f latest
+          git push -f origin "build-${{ github.run_number }}" latest
+        if: (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main')
+          
+      - name: Create uberscript
+        run: |
+          # Create the uberscript by specifying the main namespace
+          bb uberscript hook-smith-temp.clj -m hook-smith.core
+          # Make it executable and rename with version
+          chmod +x hook-smith-temp.clj
+          # Set default version if not set by previous steps
+          if [ -z "$VERSION" ]; then
+            echo "VERSION=dev" >> $GITHUB_ENV
+          fi
+          # Copy with version in filename
+          cp hook-smith-temp.clj "hook-smith-$VERSION.clj"
+          chmod +x "hook-smith-$VERSION.clj"
+          # Debug output
+          echo "Created file: hook-smith-$VERSION.clj"
+          ls -la "hook-smith-$VERSION.clj"
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: Hook Smith ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          tag_name: ${{ github.ref_name }}
+          files: |
+            hook-smith-${{ env.VERSION }}.clj
+            LICENSE
+            README.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create Build Release
+        id: create_build_release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        with:
+          name: Hook Smith ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          tag_name: build-${{ github.run_number }}
+          files: |
+            hook-smith-${{ env.VERSION }}.clj
+            LICENSE
+            README.md
+          token: ${{ secrets.GITHUB_TOKEN }}
