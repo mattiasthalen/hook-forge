@@ -37,7 +37,7 @@ jobs:
       - name: Set version for non-tagged runs
         run: |
           echo "VERSION=build-${{ github.run_number }}" >> $GITHUB_ENV
-        if: !startsWith(github.ref, 'refs/tags/')
+        if: "!startsWith(github.ref, 'refs/tags/')"
 
       - name: Push unique tag for this build
         run: |
