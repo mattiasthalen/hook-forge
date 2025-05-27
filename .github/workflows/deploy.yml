@@ -27,14 +27,10 @@ jobs:
 
       - name: Create uberscript
         run: |
-          mkdir -p dist
-          # First ensure we understand the namespace structure
-          ls -la src/hook_smith/
           # Create the uberscript by specifying the main namespace
           bb uberscript hook-smith.clj -m hook-smith.core
-          # Copy to dist and make executable
-          cp hook-smith.clj dist/hook-smith
-          chmod +x dist/hook-smith
+          # Make it executable
+          chmod +x hook-smith.clj
           
       - name: Get version from tag
         id: get_version
@@ -60,7 +56,7 @@ jobs:
           prerelease: false
           tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || github.ref_name }}
           files: |
-            dist/hook-smith
+            hook-smith.clj
             LICENSE
             README.md
           token: ${{ secrets.GITHUB_TOKEN }}
