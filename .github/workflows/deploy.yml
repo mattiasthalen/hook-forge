@@ -2,6 +2,10 @@ name: Deploy Babashka Uberscript
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - '**/*.clj'
     tags:
       - 'v*' # Run on tags starting with 'v'
   workflow_dispatch: # Allow manual trigger
@@ -28,9 +32,11 @@ jobs:
       - name: Create uberscript
         run: |
           # Create the uberscript by specifying the main namespace
-          bb uberscript hook-smith.clj -m hook-smith.core
-          # Make it executable
-          chmod +x hook-smith.clj
+          bb uberscript hook-smith-temp.clj -m hook-smith.core
+          # Make it executable and rename with version
+          chmod +x hook-smith-temp.clj
+          cp hook-smith-temp.clj "hook-smith-${{ env.VERSION || 'dev' }}.clj"
+          chmod +x "hook-smith-${{ env.VERSION || 'dev' }}.clj"
           
       - name: Get version from tag
         id: get_version
@@ -45,6 +51,15 @@ jobs:
           git config --local user.name "GitHub Action"
           git tag -f latest
         if: github.event_name == 'workflow_dispatch'
+        
+      - name: Set version for push to main
+        run: |
+          echo "VERSION=build-${{ github.run_number }}" >> $GITHUB_ENV
+          # Create a build tag for pushes to main
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -f "build-${{ github.run_number }}"
+        if: github.ref == 'refs/heads/main'
 
       - name: Create Release
         id: create_release
@@ -54,9 +69,9 @@ jobs:
           name: Hook Smith ${{ env.VERSION }}
           draft: false
           prerelease: false
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || (github.ref == 'refs/heads/main' && format('build-{0}', github.run_number) || github.ref_name) }}
           files: |
-            hook-smith.clj
+            hook-smith-${{ env.VERSION || 'dev' }}.clj
             LICENSE
             README.md
           token: ${{ secrets.GITHUB_TOKEN }}
