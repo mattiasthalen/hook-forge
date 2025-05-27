@@ -13,23 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      - name: Babashka (Clojure)
+      - name: Create uberscript with Babashka
         uses: tzafrirben/babashka-docker-action@v1.1
-
-      - name: Create uberscript
-        run: |
-          mkdir -p dist
-          bb -e "(require '[babashka.fs :as fs] '[babashka.process :as p]) \
-                 (let [tmp-file \"hook-smith.clj\"] \
-                   (p/shell \"bb\" \"uberscript\" tmp-file \"hook\") \
-                   (fs/copy tmp-file \"dist/hook-smith\") \
-                   (p/shell \"chmod\" \"+x\" \"dist/hook-smith\"))"
+        id: create_uberscript
+        with:
+          bb_cmd: |
+            mkdir -p dist
+            bb -e "(require '[babashka.fs :as fs] '[babashka.process :as p]) 
+                   (let [tmp-file \"hook-smith.clj\"] 
+                     (p/shell \"bb\" \"uberscript\" tmp-file \"hook\") 
+                     (fs/copy tmp-file \"dist/hook-smith\") 
+                     (p/shell \"chmod\" \"+x\" \"dist/hook-smith\"))"
           
       - name: Get version from tag
         id: get_version
