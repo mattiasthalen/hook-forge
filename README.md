@@ -13,181 +13,200 @@ The HOOK methodology focuses on simplicity, avoiding complex transformations in 
 
 ### Key Features
 
-- 📝 **Blueprint generation**: Create a template YAML configuration for your data warehouse
-- ⚒️ **Frame forging**: Generate frame scripts based on your blueprint
-- 🌉 **Bridge building**: Create Puppini bridge scripts for Unified Star Schema
-- 📔 **Journal creation**: Generate documentation and visualizations of your data structure
+- 📝 **Blueprint generation**: Create a template YAML configuration files for your data warehouse.
+- ⚒️ **Frame forging**: Generate a *Hook* script based on your blueprints.
+- 🌉 **Bridge building**: Generate a *Unified Star Schema* script based on your blueprints.
+- 📔 **Journal creation**: Generate documentation and visualizations of your data structure.
 
-## Installation
-
-### Prerequisites
+## Prerequisites
 
 - [Babashka](https://github.com/babashka/babashka#installation)
 
-## Quick installation
-
->**WIP!**
-
 ## Usage
-
-### Creating a blueprint
-
-Start by creating a blueprint YAML configuration:
-
 ```bash
-# Interactive blueprint creation
-hook blueprint
+# Start by creating a blueprint YAML configuration:
+bb hook blueprint
 
-# Specify output location
-hook blueprint --output my-warehouse.yaml
-```
+# Generate frame scripts based on your blueprint:
+bb hook forge
 
-### Forging frames
+# Generate a Unified Star Schema:
+bb hook uss
 
-Generate frame scripts based on your blueprint:
-
-```bash
-# Basic usage
-hook forge frames --yaml my-warehouse.yaml
-
-# Generate consolidated script
-hook forge frames --yaml my-warehouse.yaml --mode consolidated
-
-# Specify output directory
-hook forge frames --yaml my-warehouse.yaml --output ./output
-```
-
-### Building Puppini bridge
-
-Generate a Puppini bridge (Unified Star Schema):
-
-```bash
-hook span bridge --yaml my-warehouse.yaml
-```
-
-### Creating documentation
-
-Generate documentation of your data structure:
-
-```bash
-# Create HTML documentation
-hook journal --yaml my-warehouse.yaml --format html
-
-# Specify output directory
-hook journal --yaml my-warehouse.yaml --output ./docs
+# Generate markdown documentation of your data structure:
+hook journal
 ```
 
 ## Blueprint Structure
 
-A simplified example of the YAML blueprint structure:
-
+### concept.yaml
 ```yaml
-project_name: "Sales Data Warehouse"
-type: "sql"  # Options: sql, qlik
+- name: product
+  type: core
 
-concepts:
-  - name: customer
-    description: "An individual or organization that purchases goods or services"
-    examples:
-      - "Individual retail buyers who place orders directly"
-      - "Corporate accounts with volume discounts"
-    taxonomy:
-      - individual_customer
-      - corporate_customer
-    keysets:
-      - erp.customer
-      - crm.customer
+- name: customer
+  type: core
 
-  - name: product
-    description: "Items manufactured or offered for sale by the organization"
-    examples:
-      - "Physical goods in inventory"
-      - "Digital downloadable content"
-    taxonomy:
-      - digital_product
-      - physical_product
-    keysets:
-      - erp.product
-      - warehouse.product
-
-  - name: reference
-    type: weak
-    description: "Reference data used throughout the organization"
-    taxonomy:
-      - status
-      - classification
-    keysets:
-      - ref.status
-      - ref.product_type
-
-keysets:
-  - name: erp.customer
-    concept: customer
-    source_system: erp
-    description: "Customer identifiers from the ERP system"
-    example: "erp.customer|10001"
-
-  - name: erp.product
-    concept: product
-    source_system: erp
-    description: "Product identifiers from the ERP system"
-    example: "erp.product|SKU123456"
-
-  - name: merchandise.clothing
-    concept: product
-    source_system: inventory
-    description: "Clothing products in the merchandise category"
-    example: "merchandise.clothing|CLT12345"
-    
-  - name: merchandise
-    concept: product
-    source_system: inventory
-    description: "All physical merchandise products"
-    example: "merchandise|MERCH-ALL"
-
-frames:
-  # Frame with hooks and composite groups
-  - name: frame__erp__sales_order_items
-    source_system: erp
-    source_table: raw__erp__sales_order_items
-    description: "Sales order line items from the ERP system"
-    
-    # Define all hooks
-    hooks:
-      - name: order_hook
-        concept: order
-        qualifier: sales
-        keyset: erp.sales_order
-        business_key_field: order_id
-        description: "Sales order reference"
-      
-      - name: customer_hook
-        concept: customer
-        keyset: erp.customer
-        business_key_field: customer_id
-        description: "Customer who placed the order"
-      
-      - name: product_hook
-        concept: product
-        keyset: erp.product
-        business_key_field: product_id
-        description: "Product being ordered"
-    
-    # Composite group that references hooks by name
-    composite_groups:
-      - name: order_product
-        description: "Composite key for order lines by order and product"
-        primary: true
-        members:
-          - order_hook
-          - product_hook
+- name: order
+  type: core
 ```
 
-## HOOK Methodology
+### keysets.yaml
+```yaml
+- name: source.product.id
+  concept: product
+  qualifier: id
+  source_system: source
 
-This tool implements the HOOK data warehousing approach, which consists of:
+- name: source.product.name
+  concept: product
+  qualifier: name
+  source_system: source
 
-- **Frames**: Containers wrapped around tables
-- **Business Concepts**: Things businesses interact with (customers, orders, etc.)
-- **Hooks**: Formalized business keys that align frames with business concepts
-- **Keysets**: Qualifiers that provide context for business keys
+- name: source.customer.id
+  concept: customer
+  qualifier: id
+  source_system: source
+
+- name: source.customer.name
+  concept: customer
+  qualifier: name
+  source_system: source
+
+- name: source.order.id
+  concept: order
+  qualifier: id
+  source_system: source
+
+- name: source.order.order_number
+  concept: order
+  qualifier: order_number
+  source_system: source
+```
+
+### frames.yaml
+```yaml
+- name: source__products
+  source_system: source
+  source_table: lib://adss/das/source/raw__source__products.qvd
+  target_table: lib://adss/dab/source/frame__source__products.qvd
+  hooks:
+  - name: hook__product__id
+    primary: true
+    concept: product
+    qualifier: id
+    keyset: source.product.id
+    business_key_field: id
+
+  - name: hook__product__name
+    primary: false
+    concept: product
+    qualifier: name
+    keyset: source.product.name
+    business_key_field: name
+
+- name: source__customers
+  source_system: source
+  source_table: lib://adss/das/source/raw__source__customers.qvd
+  target_table: lib://adss/dab/source/frame__source__customers.qvd
+  hooks:
+  - name: hook__customer__id
+    primary: true
+    concept: customer
+    qualifier: id
+    keyset: source.customer.id
+    business_key_field: id
+
+  - name: hook__customer__name
+    primary: false
+    concept: customer
+    qualifier: name
+    keyset: source.customer.name
+    business_key_field: name
+
+- name: source__orders
+  source_system: source
+  source_table: lib://adss/das/source/raw__source__orders.qvd
+  target_table: lib://adss/dab/source/frame__source__orders.qvd
+  hooks:
+  - name: hook__order__id
+    primary: true
+    concept: order
+    qualifier: id
+    keyset: source.order.id
+    business_key_field: id
+
+  - name: hook__order__order_number
+    primary: false
+    concept: order
+    qualifier: order_number
+    keyset: source.order.order_number
+    business_key_field: order_number
+
+  - name: hook__customer__id
+    primary: false
+    concept: customer
+    qualifier: id
+    keyset: source.customer.id
+    business_key_field: customer_id
+
+- name: source__order_lines
+  source_system: source
+  source_table: lib://adss/das/source/raw__source__order_lines.qvd
+  target_table: lib://adss/dab/source/frame__source__order_lines.qvd
+  hooks:
+  - name: hook__order__id
+    primary: false
+    concept: order
+    qualifier: id
+    keyset: source.order.id
+    business_key_field: order_id
+
+  - name: hook__product__id
+    primary: false
+    concept: product
+    qualifier: id
+    keyset: source.product.id
+    business_key_field: product_id
+
+  composite_hooks:
+  - name: hook__order__product__id
+    primary: true
+    hooks:
+    - hook__order__id
+    - hook__product__id
+```
+
+## unified-star-schema.yaml
+```yaml
+bridge_path: lib://adss/dar/_bridge.qvd
+peripherals:
+- name: source__products
+  source_table: lib://adss/dab/source/frame__source__products.qvd
+  target_table: lib://adss/dar/source__products.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+
+- name: source__customers
+  source_table: lib://adss/dab/source/frame__source__customers.qvd
+  target_table: lib://adss/dar/source__customers.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+
+- name: source__orders
+  source_table: lib://adss/dab/source/frame__source__orders.qvd
+  target_table: lib://adss/dar/source__orders.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+  events:
+  - name: Order Placed On
+  - name: Order Due On
+  - name: Order Delivered On
+    field: order_delivered_on
+
+- name: source__order_lines
+  source_table: lib://adss/dab/source/frame__source__order_lines.qvd
+  target_table: lib://adss/dar/source__order_lines.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To
+```
