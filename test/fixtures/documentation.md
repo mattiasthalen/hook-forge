@@ -11,6 +11,9 @@ flowchart LR
         &nbsp;
         **Foreign Keys:**
         hook__product__name
+        &nbsp;
+        **Fields:**
+        ...
     ")
 
     frame__source__customers("
@@ -20,6 +23,9 @@ flowchart LR
         &nbsp;
         **Foreign Keys:**
         hook__customer__name
+        &nbsp;
+        **Fields:**
+        ...
     ")
 
     frame__source__orders("
@@ -30,6 +36,9 @@ flowchart LR
         **Foreign Keys:**
         hook__order__order_number
         hook__customer__id
+        &nbsp;
+        **Fields:**
+        ...
     ")
 
     frame__source__order_lines("
@@ -40,14 +49,16 @@ flowchart LR
         **Foreign Keys:**
         hook__order__id
         hook__product__id
+        &nbsp;
+        **Fields:**
+        ...
     ")
 
     %% Relations
-    frame__source__order_lines -- hook__order__id --> frame__source__orders
-    frame__source__order_lines -- hook__order__product__id ---> frame__source__products
-
     frame__source__orders -- hook__customer__id --> frame__source__customers
 
+    frame__source__order_lines -- hook__order__id --> frame__source__orders
+    frame__source__order_lines -- hook__product__id --> frame__source__products
 ```
 
 ## Unified Star Schema
@@ -65,20 +76,16 @@ flowchart TD
         pit_hook__order__id
         pit_hook__order__product__id
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         Peripheral
-        Record Valid From
-        Record Valid To
     ")
     source__products("
         **SOURCE__PRODUCTS**
         **Primary Key:**
         pit_hook__product__id
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         ...
-        Record Valid From
-        Record Valid To
     ")
 
     source__customers("
@@ -86,10 +93,8 @@ flowchart TD
         **Primary Key:**
         pit_hook__customer__id
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         ...
-        Record Valid From
-        Record Valid To
     ")
 
     source__orders("
@@ -97,10 +102,8 @@ flowchart TD
         **Primary Key:**
         pit_hook__order__id
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         ...
-        Record Valid From
-        Record Valid To
     ")
 
     source__order_lines("
@@ -108,10 +111,8 @@ flowchart TD
         **Primary Key:**
         pit_hook__order__product__id
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         ...
-        Record Valid From
-        Record Valid To
     ")
 
     %% Relations

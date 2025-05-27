@@ -24,65 +24,93 @@
         &nbsp;
         **Foreign Keys:**
         " (string/join "\n        " foreign-keys) "
+        &nbsp;
+        **Fields:**
+        ...
     \")")))
 
+(defn find-frame-by-primary-hook [frames hook-name]
+  (first (filter (fn [frame]
+                   (some #(and (= (:name %) hook-name) (:primary %))
+                         (concat (:hooks frame) (:composite_hooks frame))))
+                 frames)))
+
+(defn generate-frame-relations [frame frames]
+  (let [frame-name (:name frame)
+        foreign-hooks (get-foreign-key-hooks frame)]
+    (filter identity
+            (map (fn [hook-name]
+                   (let [target-frame (find-frame-by-primary-hook frames hook-name)]
+                     (when target-frame
+                       (str "    frame__" frame-name " -- " hook-name 
+                            " --> frame__" (:name target-frame)))))
+                 foreign-hooks))))
+
+(defn generate-hook-relations [frames]
+  (let [all-relations (mapcat #(generate-frame-relations % frames) frames)
+        grouped-relations (group-by #(re-find #"frame__[^-]+" %) all-relations)]
+    
+    ;; Join the relations, inserting an empty line between groups
+    (->> (map second grouped-relations)
+         (filter seq)
+         (interpose [""])  ;; Insert empty string between groups
+         (apply concat)
+         (string/join "\n"))))
+
 (defn generate-hook-section [frames]
-  (let [entities (string/join "\n\n" (map generate-hook-entity-block frames))]
+  (let [entities (string/join "\n\n" (map generate-hook-entity-block frames))
+        relations (generate-hook-relations frames)]
     (str "## Hook\n```mermaid\nflowchart LR\n    %% Entities\n"
          entities
          "\n\n    %% Relations\n"
-         "    frame__source__order_lines -- hook__order__id --> frame__source__orders\n"
-         "    frame__source__order_lines -- hook__order__product__id ---> frame__source__products\n\n"
-         "    frame__source__orders -- hook__customer__id --> frame__source__customers\n\n"
-         "```")))
+         relations
+         "\n```")))
 
-(defn generate-bridge-entity-block []
-  (str "    bridge(\"
+(defn get-peripheral-primary-key [peripheral frames]
+  (let [frame (first (filter #(= (:name %) (:name peripheral)) frames))
+        primary-hook (get-primary-hook frame)]
+    (str "pit_" primary-hook)))
+
+(defn generate-bridge-entity-block [peripherals frames]
+  (let [foreign-keys (map #(get-peripheral-primary-key % frames) peripherals)]
+    (str "    bridge(\"
         **_BRIDGE**
         **Primary Key:**
         key__bridge
         &nbsp;
         **Foreign Keys:**
-        pit_hook__product__id
-        pit_hook__customer__id
-        pit_hook__order__id
-        pit_hook__order__product__id
+        " (string/join "\n        " foreign-keys) "
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         Peripheral
-        Record Valid From
-        Record Valid To
-    \")"))
+    \")")))
 
-(defn generate-peripheral-entity-block [peripheral]
+(defn generate-peripheral-entity-block [peripheral frames]
   (let [name (:name peripheral)
-        prim-key (str "pit_hook__" 
-                      (if (= name "source__order_lines") 
-                        "order__product" 
-                        (string/replace (second (string/split name #"__")) #"s$" ""))
-                      "__id")]
+        primary-key (get-peripheral-primary-key peripheral frames)]
     (str "    " name "(\"
         **" (string/upper-case name) "**
         **Primary Key:**
-        " prim-key "
+        " primary-key "
         &nbsp;
-        **Dimensions:**
+        **Fields:**
         ...
-        Record Valid From
-        Record Valid To
     \")")))
 
-(defn generate-uss-section [peripherals]
-  (str "## Unified Star Schema\n```mermaid\nflowchart TD\n    %% Entities\n"
-       (generate-bridge-entity-block)
-       "\n"
-       (string/join "\n\n" (map generate-peripheral-entity-block peripherals))
-       "\n\n    %% Relations\n"
-       "    bridge -- pit_hook__product__id --> source__products\n"
-       "    bridge -- pit_hook__customer__id --> source__customers\n"
-       "    bridge -- pit_hook__order__id --> source__orders\n"
-       "    bridge -- pit_hook__order__product__id --> source__order_lines"
-       "\n\n```"))
+(defn generate-uss-relations [peripherals frames]
+  (map #(str "    bridge -- " (get-peripheral-primary-key % frames) " --> " (:name %)) peripherals))
+
+(defn generate-uss-section [peripherals frames]
+  (let [bridge-entity (generate-bridge-entity-block peripherals frames)
+        peripheral-entities (string/join "\n\n" (map #(generate-peripheral-entity-block % frames) peripherals))
+        relations (string/join "\n" (generate-uss-relations peripherals frames))]
+    (str "## Unified Star Schema\n```mermaid\nflowchart TD\n    %% Entities\n"
+         bridge-entity
+         "\n"
+         peripheral-entities
+         "\n\n    %% Relations\n"
+         relations
+         "\n\n```")))
 
 (defn generate-markdown [config]
   (let [uss (get config :unified-star-schema)
@@ -92,7 +120,7 @@
     (str header 
          (generate-hook-section frames) 
          "\n\n" 
-         (generate-uss-section peripherals))))
+         (generate-uss-section peripherals frames))))
 
 (comment
   (require '[hook-smith.utilities :as utilities])
