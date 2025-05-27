@@ -18,18 +18,20 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-
-      - name: Create uberscript with Babashka
-        uses: tzafrirben/babashka-docker-action@v1.1
-        id: create_uberscript
+          
+      - name: Install Babashka
+        uses: just-sultanov/setup-babashka@v2
         with:
-          bb_cmd: |
-            mkdir -p dist
-            bb -e "(require '[babashka.fs :as fs] '[babashka.process :as p]) 
-                   (let [tmp-file \"hook-smith.clj\"] 
-                     (p/shell \"bb\" \"uberscript\" tmp-file \"hook\") 
-                     (fs/copy tmp-file \"dist/hook-smith\") 
-                     (p/shell \"chmod\" \"+x\" \"dist/hook-smith\"))"
+          version: '1.3.186'
+
+      - name: Create uberscript
+        run: |
+          mkdir -p dist
+          bb -e "(require '[babashka.fs :as fs] '[babashka.process :as p]) 
+                 (let [tmp-file \"hook-smith.clj\"] 
+                   (p/shell \"bb\" \"uberscript\" tmp-file \"hook\") 
+                   (fs/copy tmp-file \"dist/hook-smith\") 
+                   (p/shell \"chmod\" \"+x\" \"dist/hook-smith\"))"
           
       - name: Get version from tag
         id: get_version
