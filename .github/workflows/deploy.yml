@@ -27,11 +27,13 @@ jobs:
       - name: Create uberscript
         run: |
           mkdir -p dist
-          bb -e "(require '[babashka.fs :as fs] '[babashka.process :as p]) 
-                 (let [tmp-file \"hook-smith.clj\"] 
-                   (p/shell \"bb\" \"uberscript\" tmp-file \"hook\") 
-                   (fs/copy tmp-file \"dist/hook-smith\") 
-                   (p/shell \"chmod\" \"+x\" \"dist/hook-smith\"))"
+          # First ensure we understand the namespace structure
+          ls -la src/hook_smith/
+          # Create the uberscript by specifying the main namespace
+          bb uberscript hook-smith.clj -m hook-smith.core
+          # Copy to dist and make executable
+          cp hook-smith.clj dist/hook-smith
+          chmod +x dist/hook-smith
           
       - name: Get version from tag
         id: get_version
