@@ -20,7 +20,7 @@ Sub add_suffix_to_field_names(par__table_name, par__var_name)
 		Let val__field_alias	= '[$(val__field_name)]';
 
 		If WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then
-			Let val__field_alias	= '[$(val__field_name)] As [$(val__field_alias) (source__products)]';
+			Let val__field_alias	= '[$(val__field_name)] As [$(val__field_alias) ($(par__table_name))]';
 
 		End If
 

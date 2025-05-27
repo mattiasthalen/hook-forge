@@ -1,6 +1,5 @@
 (ns hook-smith.uss
-  (:require [clojure.string :as str]
-            [hook-smith.utilities :as utilities]))
+  (:require [clojure.string :as str]))
 
 (def generate-uss-header
   (str "Trace\n"
@@ -25,7 +24,7 @@
        "\t\tLet val__field_alias\t= '[$(val__field_name)]';\n"
        "\n"
        "\t\tIf WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then\n"
-       "\t\t\tLet val__field_alias\t= '[$(val__field_name)] As [$(val__field_alias) (source__products)]';\n"
+       "\t\t\tLet val__field_alias\t= '[$(val__field_name)] As [$(val__field_alias) ($(par__table_name))]';\n"
        "\n"
        "\t\tEnd If\n"
        "\n"
