@@ -41,7 +41,12 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
 
       - name: Set version for manual run
-        run: echo "VERSION=latest" >> $GITHUB_ENV
+        run: |
+          echo "VERSION=latest" >> $GITHUB_ENV
+          # Create a temporary tag for the release when running manually
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -f latest
         if: github.event_name == 'workflow_dispatch'
 
       - name: Create Release
@@ -52,6 +57,7 @@ jobs:
           name: Hook Smith ${{ env.VERSION }}
           draft: false
           prerelease: false
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && 'latest' || github.ref_name }}
           files: |
             dist/hook-smith
             LICENSE
