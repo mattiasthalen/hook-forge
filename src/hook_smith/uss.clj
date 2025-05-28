@@ -118,13 +118,13 @@
        "From\n"
        "\t[" source-table "] (qvd)\n"
        ";\n\n"
-       "Call add_suffix_to_field_names('" name "', 'val__fields');\n\n"
+       "Call add_suffix_to_field_names('" name "', 'val__field_list');\n\n"
        "Rename Table [" name "] To [tmp__" name "];\n\n"
        "[" name "]:\n"
        "NoConcatenate\n"
-       "Load $(val__fields) Resident [tmp__" name "];\n"
+       "Load $(val__field_list) Resident [tmp__" name "];\n"
        "Drop Table [tmp__" name "];\n\n"
-       "Let val__fields\t= Null();\n\n"))
+       "Let val__field_list\t= Null();\n\n"))
 
 (defn generate-store-peripheral [name target-table]
   (str "// Generate peripheral\n"
