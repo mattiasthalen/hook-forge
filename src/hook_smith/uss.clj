@@ -23,7 +23,7 @@
        "\t\tLet val__field_name\t\t= FieldName($(iter__field_idx), '$(par__table_name)');\n"
        "\t\tLet val__field_alias\t= '[$(val__field_name)]';\n"
        "\n"
-       "\t\tIf WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then\n"
+       "\t\tIf WildMatch('$(val__field_name)', 'pit_key__*', 'hook__*') = 0 Then\n"
        "\t\t\tLet val__field_alias\t= '[$(val__field_name)] As [$(val__field_name) ($(par__table_name))]';\n"
        "\n"
        "\t\tEnd If\n"
