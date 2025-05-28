@@ -15,12 +15,18 @@ AutoGenerate 0
 Sub add_suffix_to_field_names(par__table_name, par__var_name)
 	Let val__fields = '';
 
+	Trace ### par__table_name = $(par__table_name);
+	Trace ### par__var_name = $(par__var_name);
+
 	For iter__field_idx = 1 To NoOfFields('$(par__table_name)') - 1
-		Let val__field_name		= FieldName('$(par__table_name)', $(iter__field_idx));
+		Let val__field_name		= FieldName($(iter__field_idx), '$(par__table_name)');
 		Let val__field_alias	= '[$(val__field_name)]';
 
+		Trace ### Processing field: $(val__field_name);
+		Trace ### Field alias: $(val__field_alias);
+
 		If WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then
-			Let val__field_alias	= '[$(val__field_name)] As [$(val__field_alias) ($(par__table_name))]';
+			Let val__field_alias	= '[$(val__field_name)] As [$(val__field_name) ($(par__table_name))]';
 
 		End If
 
