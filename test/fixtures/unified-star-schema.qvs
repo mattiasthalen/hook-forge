@@ -409,7 +409,7 @@ AutoGenerate 0
 NoConcatenate
 Load
 	[key__bridge]
-	[pit_hook__order__id]
+,	[pit_hook__order__id]
 
 Resident
 	[_bridge]
@@ -421,7 +421,7 @@ Where
 
 Left Join([Order Placed On])
 Load
-,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
 ,	1	As [Event: Order Placed On]
 ,	'epoch.date|' & [Order Placed On]	As [hook__epoch__date]
 
@@ -441,7 +441,7 @@ Drop Table [Order Placed On];
 NoConcatenate
 Load
 	[key__bridge]
-	[pit_hook__order__id]
+,	[pit_hook__order__id]
 
 Resident
 	[_bridge]
@@ -453,7 +453,7 @@ Where
 
 Left Join([Order Due On])
 Load
-,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
 ,	1	As [Event: Order Due On]
 ,	'epoch.date|' & [Order Due On]	As [hook__epoch__date]
 
@@ -473,7 +473,7 @@ Drop Table [Order Due On];
 NoConcatenate
 Load
 	[key__bridge]
-	[pit_hook__order__id]
+,	[pit_hook__order__id]
 
 Resident
 	[_bridge]
@@ -485,7 +485,7 @@ Where
 
 Left Join([Order Delivered On])
 Load
-,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
 ,	1	As [Event: Order Delivered On]
 ,	'epoch.date|' & [order_delivered_on]	As [hook__epoch__date]
 
