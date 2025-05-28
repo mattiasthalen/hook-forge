@@ -336,7 +336,7 @@
     (str "Left Join([events])\n"
          "Load * Resident [_bridge];\n"
          "\n"
-         "Left Join([_bridge]):\n"
+         "Left Join([_bridge])\n"
          "Load\n"
          "\t[key__bridge]\n"
          ",\t[hook__epoch__date]\n"
