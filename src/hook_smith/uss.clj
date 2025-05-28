@@ -88,8 +88,8 @@
                          "\t[" primary-hook "]\n"
                          ",\tHash256([" primary-hook "], [Record Valid From])\tAs [pit_" primary-hook "]\n"
                          (load-hooks foreign-hooks) "\n"
-                         ",\t[" valid-from "]\tAs [" valid-from-alias ")]\n"
-                         ",\t[" valid-to "]\tAs [" valid-to-alias ")]\n"
+                         ",\t[" valid-from "]\tAs [" valid-from-alias "]\n"
+                         ",\t[" valid-to "]\tAs [" valid-to-alias "]\n"
                          "\nFrom\n"
                          "\t[" qvd-path "] (qvd)\n"
                          ";\n\n")
