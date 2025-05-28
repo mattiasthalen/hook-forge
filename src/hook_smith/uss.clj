@@ -77,7 +77,7 @@
       []
       (let [primary-hook (get-primary-hook (concat (:hooks frame) (:composite_hooks frame)))
             foreign-hooks (get-foreign-hooks (:hooks frame))
-            qvd-path (get frame :source_table)
+            qvd-path (get frame :target_table)
             valid-from (get peripheral :valid_from)
             valid-to (get peripheral :valid_to)
             valid-from-alias (str valid-from " (" (:name frame) ")")
