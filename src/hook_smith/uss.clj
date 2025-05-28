@@ -20,11 +20,11 @@
        "\tLet val__fields = '';\n"
        "\n"
        "\tFor iter__field_idx = 1 To NoOfFields('$(par__table_name)') - 1\n"
-       "\t\tLet val__field_name\t\t= FieldName('$(par__table_name)', $(iter__field_idx));\n"
+       "\t\tLet val__field_name\t\t= FieldName($(iter__field_idx), '$(par__table_name)');\n"
        "\t\tLet val__field_alias\t= '[$(val__field_name)]';\n"
        "\n"
        "\t\tIf WildMatch('$(val__field_alias)', 'pit_key__*', 'hook__*') = 0 Then\n"
-       "\t\t\tLet val__field_alias\t= '[$(val__field_name)] As [$(val__field_alias) ($(par__table_name))]';\n"
+       "\t\t\tLet val__field_alias\t= '[$(val__field_name)] As [$(val__field_name) ($(par__table_name))]';\n"
        "\n"
        "\t\tEnd If\n"
        "\n"
@@ -118,13 +118,13 @@
        "From\n"
        "\t[" source-table "] (qvd)\n"
        ";\n\n"
-       "Call add_suffix_to_field_names('" name "', 'val__fields');\n\n"
+       "Call add_suffix_to_field_names('" name "', 'val__field_list');\n\n"
        "Rename Table [" name "] To [tmp__" name "];\n\n"
        "[" name "]:\n"
        "NoConcatenate\n"
-       "Load $(val__fields) Resident [tmp__" name "];\n"
+       "Load $(val__field_list) Resident [tmp__" name "];\n"
        "Drop Table [tmp__" name "];\n\n"
-       "Let val__fields\t= Null();\n\n"))
+       "Let val__field_list\t= Null();\n\n"))
 
 (defn generate-store-peripheral [name target-table]
   (str "// Generate peripheral\n"

@@ -42,7 +42,7 @@
       (when (seq composite-sections)
         (str (str/join "\n" composite-sections)
              "\n,\t*"
-             "\n;\n\nLoad")))))
+             "\n;\n\nLoad\n")))))
 
 (defn generate-frame-script
   "Generate the complete QVS script for a single frame"
@@ -55,9 +55,7 @@
      (if composite-hooks-script
        composite-hooks-script
        "")
-     (when hooks 
-       (str (if composite-hooks-script "\n," "") 
-            hooks))
+     hooks
      "\n,\t*\n\n"
      "From\n"
      "\t[" (:source_table frame) "] (qvd)\n"
