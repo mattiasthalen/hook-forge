@@ -87,3 +87,32 @@
     hooks:
     - hook__order__id
     - hook__product__id
+  
+- name: source__customer_orders
+  skip_generation: true
+  source_system: source
+  source_table:
+    - lib://adss/das/source/frame__source__customers.qvd
+    - lib://adss/das/source/frame__source__orders.qvd
+  target_table: lib://adss/dab/source/frame__source__customer_orders.qvd
+  hooks:
+  - name: hook__customer__id
+    primary: false
+    concept: customer
+    qualifier: id
+    keyset: source.customer.id
+    business_key_field: customer_id
+
+  - name: hook__order__id
+    primary: false
+    concept: order
+    qualifier: id
+    keyset: source.order.id
+    business_key_field: order_id
+
+  composite_hooks:
+  - name: hook__customer__order__id
+    primary: true
+    hooks:
+    - hook__customer__id
+    - hook__order__id

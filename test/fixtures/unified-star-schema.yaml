@@ -28,3 +28,9 @@ peripherals:
   target_table: lib://adss/dar/source__order_lines.qvd
   valid_from: Record Valid From
   valid_to: Record Valid To
+
+- name: source__customer_orders
+  source_table: lib://adss/dab/source/frame__source__customer_orders.qvd
+  target_table: lib://adss/dar/source__customer_orders.qvd
+  valid_from: Record Valid From
+  valid_to: Record Valid To

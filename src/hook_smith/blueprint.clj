@@ -112,7 +112,28 @@
              :business_key_field "product_id"}]
     :composite_hooks [{:name "hook__order__product__id"
                        :primary true
-                       :hooks ["hook__order__id" "hook__product__id"]}]}])
+                       :hooks ["hook__order__id" "hook__product__id"]}]}
+   {:name "source__customer_orders"
+    :skip_generation true
+    :source_system "source"
+    :source_table ["lib://adss/das/source/frame__source__customers.qvd" 
+                   "lib://adss/das/source/frame__source__orders.qvd"]
+    :target_table "lib://adss/dab/source/frame__source__customer_orders.qvd"
+    :hooks [{:name "hook__customer__id"
+             :primary false
+             :concept "customer"
+             :qualifier "id"
+             :keyset "source.customer.id"
+             :business_key_field "id"}
+            {:name "hook__order__id"
+             :primary false
+             :concept "order"
+             :qualifier "id"
+             :keyset "source.order.id"
+             :business_key_field "order_id"}]
+    :composite_hooks [{:name "hook__customer__order__id"
+                       :primary true
+                       :hooks ["hook__customer__id" "hook__order__id"]}]}])
 
 (def uss-blueprint
   {:bridge_path "lib://adss/dar/_bridge.qvd"
@@ -138,6 +159,11 @@
                 {:name "source__order_lines"
                  :source_table "lib://adss/dab/source/frame__source__order_lines.qvd"
                  :target_table "lib://adss/dar/source__order_lines.qvd"
+                 :valid_from "Record Valid From"
+                 :valid_to "Record Valid To"}
+                {:name "source__customer_orders"
+                 :source_table "lib://adss/dab/source/frame__source__customer_orders.qvd"
+                 :target_table "lib://adss/dar/source__customer_orders.qvd"
                  :valid_from "Record Valid From"
                  :valid_to "Record Valid To"}]})
 
