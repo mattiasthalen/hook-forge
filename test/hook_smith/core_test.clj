@@ -2,8 +2,8 @@
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
             [hook-smith.core :as core]
             [hook-smith.blueprint :as blueprint]
-            [hook-smith.uss :as uss]
-            [hook-smith.documentation :as documentation]
+            #_[hook-smith.uss :as uss]
+            #_[hook-smith.documentation :as documentation]
             [babashka.fs :as fs])
   (:import [java.io StringWriter]))
 
