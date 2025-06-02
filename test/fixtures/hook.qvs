@@ -80,6 +80,7 @@ Target: lib://adss/dab/source/frame__source__order_lines.qvd
 [source__order_lines]:
 Load
 	[hook__order__id] & '~' & [hook__product__id]	As [hook__order__product__id]
+,	[hook__order__order_number] & '~' & [hook__order__line_number]	As [hook__order_number__line__id]
 ,	*
 ;
 
@@ -87,6 +88,7 @@ Load
 	If(Not IsNull(Text([order_id])), 'source.order.id' & Text([order_id]))	As [hook__order__id]
 ,	If(Not IsNull(Text([product_id])), 'source.product.id' & Text([product_id]))	As [hook__product__id]
 ,	If(Not IsNull(SubField([order_number], '-', 1)), 'source.order.order_number' & SubField([order_number], '-', 1))	As [hook__order__order_number]
+,	If(Not IsNull(Text([line_number])), 'source.order.line_number' & Text([line_number]))	As [hook__order__line_number]
 ,	*
 
 From

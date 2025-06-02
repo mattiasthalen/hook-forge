@@ -50,6 +50,7 @@ flowchart LR
         hook__order__id
         hook__product__id
         hook__order__order_number
+        hook__order__line_number
         &nbsp;
         **Fields:**
         ...
