@@ -9,8 +9,8 @@ Target: lib://adss/dab/source/frame__source__products.qvd
 
 [source__products]:
 Load
-	'source.product.id' & Text([id])	As [hook__product__id]
-,	'source.product.name' & Text([name])	As [hook__product__name]
+	If(Not IsNull(Text([id])), 'source.product.id' & Text([id]))	As [hook__product__id]
+,	If(Not IsNull(Text([name])), 'source.product.name' & Text([name]))	As [hook__product__name]
 ,	*
 
 From
@@ -32,8 +32,8 @@ Target: lib://adss/dab/source/frame__source__customers.qvd
 
 [source__customers]:
 Load
-	'source.customer.id' & Text([id])	As [hook__customer__id]
-,	'source.customer.name' & Text([name])	As [hook__customer__name]
+	If(Not IsNull(Text([id])), 'source.customer.id' & Text([id]))	As [hook__customer__id]
+,	If(Not IsNull(Text([name])), 'source.customer.name' & Text([name]))	As [hook__customer__name]
 ,	*
 
 From
@@ -55,9 +55,9 @@ Target: lib://adss/dab/source/frame__source__orders.qvd
 
 [source__orders]:
 Load
-	'source.order.id' & Text([id])	As [hook__order__id]
-,	'source.order.order_number' & Text([order_number])	As [hook__order__order_number]
-,	'source.customer.id' & Text([customer_id])	As [hook__customer__id]
+	If(Not IsNull(Text([id])), 'source.order.id' & Text([id]))	As [hook__order__id]
+,	If(Not IsNull(Text([order_number])), 'source.order.order_number' & Text([order_number]))	As [hook__order__order_number]
+,	If(Not IsNull(Text([customer_id])), 'source.customer.id' & Text([customer_id]))	As [hook__customer__id]
 ,	*
 
 From
@@ -84,8 +84,9 @@ Load
 ;
 
 Load
-	'source.order.id' & Text([order_id])	As [hook__order__id]
-,	'source.product.id' & Text([product_id])	As [hook__product__id]
+	If(Not IsNull(Text([order_id])), 'source.order.id' & Text([order_id]))	As [hook__order__id]
+,	If(Not IsNull(Text([product_id])), 'source.product.id' & Text([product_id]))	As [hook__product__id]
+,	If(Not IsNull(SubField([order_number], '-', 1)), 'source.order.order_number' & SubField([order_number], '-', 1))	As [hook__order__order_number]
 ,	*
 
 From

@@ -109,7 +109,14 @@
              :concept "product"
              :qualifier "id"
              :keyset "source.product.id"
-             :business_key_field "product_id"}]
+             :business_key_field "product_id"}
+            {:name "hook__order__order_number"
+             :primary false
+             :concept "order"
+             :qualifier "order_number"
+             :keyset "source.order.order_number"
+             :business_key_field "order_number"
+             :expression "SubField([order_number], '-', 1)"}]
     :composite_hooks [{:name "hook__order__product__id"
                        :primary true
                        :hooks ["hook__order__id" "hook__product__id"]}]}

@@ -13,10 +13,15 @@
       (is (re-find #"Target: /target/path" header)))))
 
 (deftest generate-hook-field-test
-  (testing "Generates correct hook field string"
+  (testing "Generates correct hook field string with default expression"
     (let [hook {:name "hook1" :keyset "ks1" :business_key_field "bkf1"}
           field (frame/generate-hook-field hook)]
-      (is (= field "\t'ks1' & Text([bkf1])\tAs [hook1]")))))
+      (is (= field "\tIf(Not IsNull(Text([bkf1])), 'ks1' & Text([bkf1]))\tAs [hook1]"))))
+  
+  (testing "Generates correct hook field string with custom expression"
+    (let [hook {:name "hook2" :keyset "ks2" :business_key_field "bkf2" :expression "SubField([order_number], '-', 1)"}
+          field (frame/generate-hook-field hook)]
+      (is (= field "\tIf(Not IsNull(SubField([order_number], '-', 1)), 'ks2' & SubField([order_number], '-', 1))\tAs [hook2]")))))
 
 (deftest generate-frame-hooks-test
   (testing "Generates joined hook fields"

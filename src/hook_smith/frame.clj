@@ -20,8 +20,11 @@
 (defn generate-hook-field
   "Generate a QVS field definition for a hook"
   [hook]
-  (let [{:keys [name keyset business_key_field]} hook]
-    (str "\t'" keyset "' & Text([" business_key_field "])\tAs [" name "]")))
+  (let [{:keys [name keyset business_key_field expression]} hook
+        field-expression (if expression
+                          expression
+                          (str "Text([" business_key_field "])"))]
+    (str "\tIf(Not IsNull(" field-expression "), '" keyset "' & " field-expression ")\tAs [" name "]")))
 
 (defn generate-frame-hooks
   "Generate the hook fields section for a frame"
