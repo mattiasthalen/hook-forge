@@ -1,0 +1,29 @@
+# Ensure LF line endings for all text files
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.clj text eol=lf
+*.cljs text eol=lf
+*.cljc text eol=lf
+*.edn text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.qvs text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout (if any)
+# *.bat text eol=crlf
+
+# Declare binary files that should not be normalized
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.jar binary
