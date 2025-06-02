@@ -80,7 +80,7 @@
     qualifier: id
     keyset: source.product.id
     business_key_field: product_id
-  
+
   - name: hook__order__order_number
     primary: false
     concept: order
@@ -95,13 +95,13 @@
     hooks:
     - hook__order__id
     - hook__product__id
-  
+
 - name: source__customer_orders
   skip_generation: true
   source_system: source
   source_table:
-    - lib://adss/das/source/frame__source__customers.qvd
-    - lib://adss/das/source/frame__source__orders.qvd
+  - lib://adss/das/source/frame__source__customers.qvd
+  - lib://adss/das/source/frame__source__orders.qvd
   target_table: lib://adss/dab/source/frame__source__customer_orders.qvd
   hooks:
   - name: hook__customer__id
@@ -109,7 +109,7 @@
     concept: customer
     qualifier: id
     keyset: source.customer.id
-    business_key_field: customer_id
+    business_key_field: id
 
   - name: hook__order__id
     primary: false

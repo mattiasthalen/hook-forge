@@ -49,6 +49,7 @@ flowchart LR
         **Foreign Keys:**
         hook__order__id
         hook__product__id
+        hook__order__order_number
         &nbsp;
         **Fields:**
         ...
