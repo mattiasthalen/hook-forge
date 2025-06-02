@@ -13,9 +13,9 @@ AutoGenerate 0
 ;
 
 Sub add_suffix_to_field_names(par__table_name, par__var_name)
-	Let val__fields = '';
+	Let val__fields	= '';
 
-	For iter__field_idx = 1 To NoOfFields('$(par__table_name)') - 1
+	For iter__field_idx = 1 To NoOfFields('$(par__table_name)')
 		Let val__field_name		= FieldName($(iter__field_idx), '$(par__table_name)');
 		Let val__field_alias	= '[$(val__field_name)]';
 
@@ -25,10 +25,10 @@ Sub add_suffix_to_field_names(par__table_name, par__var_name)
 		End If
 
 		If Len('$(val__fields)') > 0 Then
-			Let val__fields = '$(val__fields), $(val__field_alias)';
+			Let val__fields	= '$(val__fields), $(val__field_alias)';
 		
 		Else
-			Let val__fields = '$(val__field_alias)';
+			Let val__fields	= '$(val__field_alias)';
 
 		End If
 
@@ -39,6 +39,35 @@ Sub add_suffix_to_field_names(par__table_name, par__var_name)
 	Let iter__field_idx	= Null();
 
 	Let $(par__var_name) = '$(val__fields)';
+
+	Let val__fields		= Null();
+	Let par__table_name	= Null();
+	Let par__var_name	= Null();
+
+End Sub
+
+Sub deselect_hook_fields(par__table_name, par__var_name)
+	Let val__fields	= '';
+
+	For iter__field_idx = 1 To NoOfFields('$(par__table_name)')
+		Let val__field_name	= FieldName($(iter__field_idx), '$(par__table_name)');
+
+		If WildMatch('$(val__field_name)', 'hook__*') = 0 Then
+			If Len('$(val__fields)') > 0 Then
+				Let val__fields	= '$(val__fields), [$(val__field_name)]';
+		
+			Else
+				Let val__fields	= '[$(val__field_name)]';
+
+			End If
+		End If
+
+		Let val__field_name	= Null();
+
+	Next iter__field_idx
+	Let iter__field_idx	= Null();
+
+	Let $(par__var_name)	= '$(val__fields)';
 
 	Let val__fields		= Null();
 	Let par__table_name	= Null();
@@ -104,8 +133,22 @@ Resident
 Drop Table [bridge__source__products];
 
 // Generate peripheral
-Store [source__products] Into 'lib://adss/dar/source__products.qvd' (qvd);
+Call deselect_hook_fields('source__products', 'val__peripheral_field_list');
+
+Store
+	$(val__peripheral_field_list)
+
+From
+	[source__products]
+
+Into
+	'lib://adss/dar/source__products.qvd' (qvd)
+;
+
 Drop Table [source__products];
+
+Let val__peripheral_field_list	= Null();
+
 
 Trace
 ------------------------------------------------------------
@@ -165,8 +208,22 @@ Resident
 Drop Table [bridge__source__customers];
 
 // Generate peripheral
-Store [source__customers] Into 'lib://adss/dar/source__customers.qvd' (qvd);
+Call deselect_hook_fields('source__customers', 'val__peripheral_field_list');
+
+Store
+	$(val__peripheral_field_list)
+
+From
+	[source__customers]
+
+Into
+	'lib://adss/dar/source__customers.qvd' (qvd)
+;
+
 Drop Table [source__customers];
+
+Let val__peripheral_field_list	= Null();
+
 
 Trace
 ------------------------------------------------------------
@@ -254,8 +311,22 @@ Where
 Drop Table [bridge__source__orders];
 
 // Generate peripheral
-Store [source__orders] Into 'lib://adss/dar/source__orders.qvd' (qvd);
+Call deselect_hook_fields('source__orders', 'val__peripheral_field_list');
+
+Store
+	$(val__peripheral_field_list)
+
+From
+	[source__orders]
+
+Into
+	'lib://adss/dar/source__orders.qvd' (qvd)
+;
+
 Drop Table [source__orders];
+
+Let val__peripheral_field_list	= Null();
+
 
 Trace
 ------------------------------------------------------------
@@ -382,8 +453,22 @@ Where
 Drop Table [bridge__source__order_lines];
 
 // Generate peripheral
-Store [source__order_lines] Into 'lib://adss/dar/source__order_lines.qvd' (qvd);
+Call deselect_hook_fields('source__order_lines', 'val__peripheral_field_list');
+
+Store
+	$(val__peripheral_field_list)
+
+From
+	[source__order_lines]
+
+Into
+	'lib://adss/dar/source__order_lines.qvd' (qvd)
+;
+
 Drop Table [source__order_lines];
+
+Let val__peripheral_field_list	= Null();
+
 
 Trace
 ------------------------------------------------------------
@@ -510,8 +595,22 @@ Where
 Drop Table [bridge__source__customer_orders];
 
 // Generate peripheral
-Store [source__customer_orders] Into 'lib://adss/dar/source__customer_orders.qvd' (qvd);
+Call deselect_hook_fields('source__customer_orders', 'val__peripheral_field_list');
+
+Store
+	$(val__peripheral_field_list)
+
+From
+	[source__customer_orders]
+
+Into
+	'lib://adss/dar/source__customer_orders.qvd' (qvd)
+;
+
 Drop Table [source__customer_orders];
+
+Let val__peripheral_field_list	= Null();
+
 
 Trace
 ------------------------------------------------------------
