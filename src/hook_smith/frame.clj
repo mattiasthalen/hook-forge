@@ -87,9 +87,9 @@
 (defn generate-hook-qvs
   "Main function to read YAML configuration files and generate the hook.qvs script"
   [path]
-  (let [filepath (str path "/generated-hook.qvs")]
-    (->> path
-         (utilities/read-yaml-files-in-directory)
-         (:frames)
-         (generate-qvs-script)
-         (utilities/safe-save filepath))))
+  (let [filepath (str path "/generated-hook.qvs")
+        content (->> path
+                     (utilities/read-yaml-files-in-directory)
+                     (:frames)
+                     (generate-qvs-script))]
+    (utilities/safe-save filepath content true)))

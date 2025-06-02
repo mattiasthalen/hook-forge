@@ -111,15 +111,29 @@
           content "test content"
           output (with-out-str-custom #(#'utilities/save-with-notification file-path content))]
       (is (re-find #"File saved: .*test.txt" output))
-      (is (= content (slurp file-path))))))
+      (is (= content (slurp file-path)))))
+  
+  (testing "Saves content with UTF-8 BOM when requested"
+    (let [file-path (str (io/file *test-temp-dir* "test-bom.txt"))
+          content "test content"
+          output (with-out-str-custom #(#'utilities/save-with-notification file-path content true))]
+      (is (re-find #"File saved: .*test-bom.txt" output))
+      ;; Read the file as bytes to check for BOM
+      (let [file-bytes (with-open [fis (java.io.FileInputStream. file-path)]
+                         (let [buffer (byte-array 1024)
+                               bytes-read (.read fis buffer)]
+                           (take bytes-read buffer)))
+            bom-bytes [-17 -69 -65]] ;; Signed byte representation of 0xEF 0xBB 0xBF
+        (is (= bom-bytes (take 3 file-bytes)))))))
 
 (deftest safe-save-test
   (testing "Creates new file with content when file doesn't exist"
     (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
                   utilities/confirm-overwrite (fn [_] true)
-                  utilities/save-with-notification (fn [file-path content]
+                  utilities/save-with-notification (fn [file-path content & [with-bom?]]
                                                      (is (= file-path "mock-path"))
                                                      (is (= content "This is new content"))
+                                                     (is (false? with-bom?))
                                                      :saved)
                   utilities/file-exists? (fn [_] false)]
       (is (= :saved (utilities/safe-save "mock-path" "This is new content")))))
@@ -127,12 +141,24 @@
   (testing "Overwrites file when user confirms"
     (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
                   utilities/confirm-overwrite (fn [_] true)
-                  utilities/save-with-notification (fn [file-path content]
+                  utilities/save-with-notification (fn [file-path content & [with-bom?]]
                                                      (is (= file-path "mock-path"))
                                                      (is (= content "New content"))
+                                                     (is (false? with-bom?))
                                                      :saved)
                   utilities/file-exists? (fn [_] true)]
       (is (= :saved (utilities/safe-save "mock-path" "New content")))))
+  
+  (testing "Saves with UTF-8 BOM when requested"
+    (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)
+                  utilities/confirm-overwrite (fn [_] true)
+                  utilities/save-with-notification (fn [file-path content & [with-bom?]]
+                                                     (is (= file-path "mock-path"))
+                                                     (is (= content "BOM content"))
+                                                     (is (true? with-bom?))
+                                                     :saved)
+                  utilities/file-exists? (fn [_] false)]
+      (is (= :saved (utilities/safe-save "mock-path" "BOM content" true)))))
 
   (testing "Cancels operation when user denies overwrite"
     (with-redefs [utilities/ensure-parent-dirs (fn [_] nil)

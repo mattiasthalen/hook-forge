@@ -22,10 +22,19 @@
 
 (defn- save-with-notification
   "Save content to file and print notification."
-  [file-path content]
-  (spit file-path content)
-  (println (str "File saved: " file-path))
-  file-path)
+  ([file-path content]
+   (save-with-notification file-path content false))
+  ([file-path content with-bom?]
+   (if with-bom?
+     (with-open [os (java.io.FileOutputStream. file-path)]
+       ;; Write UTF-8 BOM bytes (0xEF 0xBB 0xBF)
+       ;; Use unchecked-byte to handle values outside signed byte range
+       (.write os (byte-array [(unchecked-byte 0xEF) (unchecked-byte 0xBB) (unchecked-byte 0xBF)]))
+       ;; Write content as UTF-8
+       (.write os (.getBytes content "UTF-8")))
+     (spit file-path content))
+   (println (str "File saved: " file-path))
+   file-path))
 
 (defn file-exists?
   "Return true if the file at file-path exists."
@@ -34,17 +43,20 @@
 
 (defn safe-save
   "Safely save content to a file, prompting for confirmation if the file exists.
-   Creates parent directories if they don't exist."
-  [file-path content]
-  (let [file (java.io.File. file-path)]
-    (ensure-parent-dirs file)
-    (if (file-exists? file-path)
-      (if (confirm-overwrite file-path)
-        (save-with-notification file-path content)
-        (do 
-          (println "Operation cancelled.")
-          nil))
-      (save-with-notification file-path content))))
+   Creates parent directories if they don't exist.
+   When with-bom? is true, saves the file as UTF-8 with BOM."
+  ([file-path content]
+   (safe-save file-path content false))
+  ([file-path content with-bom?]
+   (let [file (java.io.File. file-path)]
+     (ensure-parent-dirs file)
+     (if (file-exists? file-path)
+       (if (confirm-overwrite file-path)
+         (save-with-notification file-path content with-bom?)
+         (do 
+           (println "Operation cancelled.")
+           nil))
+       (save-with-notification file-path content with-bom?)))))
 
 (defn convert-map-to-yaml
   "Converts a map to YAML format with blank lines when indentation decreases for better readability."

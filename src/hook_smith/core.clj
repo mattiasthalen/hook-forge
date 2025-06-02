@@ -31,11 +31,11 @@
 
 (defn uss [path]
   (println "Building Unified Star Schema")
-  (let [filepath (str path "/generated-uss.qvs")] 
-    (->> path
-         (utilities/read-yaml-files-in-directory)
-         (uss/generate-uss-qvs)
-         (utilities/safe-save filepath))))
+  (let [filepath (str path "/generated-uss.qvs")
+        content (->> path
+                     (utilities/read-yaml-files-in-directory)
+                     (uss/generate-uss-qvs))]
+    (utilities/safe-save filepath content true)))
 
 (defn journal [path]
   (println "Writing journal...")
