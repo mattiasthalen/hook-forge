@@ -63,10 +63,23 @@
      "Store [" (:name frame) "] Into '" (:target_table frame) "' (qvd);\n"
      "Drop Table [" (:name frame) "];\n\n")))
 
+(defn should-generate-frame?
+  "Check if a frame should be generated (not skipped)"
+  [frame]
+  (not (:skip_generation frame)))
+
+(defn generate-frame
+  "Generate QVS script for a frame, or nil if it should be skipped"
+  [frame]
+  (when (should-generate-frame? frame)
+    (generate-frame-script frame)))
+
 (defn generate-qvs-script
   "Generate the complete QVS script from the frames data"
   [frames]
-  (str/join "\n" (map generate-frame-script frames)))
+  (->> frames
+       (keep generate-frame)
+       (str/join "\n")))
 
 (defn generate-hook-qvs
   "Main function to read YAML configuration files and generate the hook.qvs script"

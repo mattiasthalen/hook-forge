@@ -60,3 +60,16 @@
       (is (re-find #"B" script))
       (is (re-find #"a.qvd" script))
       (is (re-find #"b2.qvd" script)))))
+
+(deftest generate-qvs-script-skip-generation-test
+  (testing "Skips frames with skip_generation set to true"
+    (let [frames [{:name "A" :source_table "a.qvd" :target_table "a2.qvd" :hooks []}
+                  {:name "B" :source_table "b.qvd" :target_table "b2.qvd" :hooks [] :skip_generation true}
+                  {:name "C" :source_table "c.qvd" :target_table "c2.qvd" :hooks []}]
+          script (frame/generate-qvs-script frames)]
+      (is (re-find #"A" script))
+      (is (not (re-find #"B" script)))
+      (is (re-find #"C" script))
+      (is (re-find #"a.qvd" script))
+      (is (not (re-find #"b.qvd" script)))
+      (is (re-find #"c2.qvd" script)))))
