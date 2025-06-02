@@ -361,6 +361,7 @@ Load
 ,	[hook__order__id]
 ,	[hook__product__id]
 ,	[hook__order__order_number]
+,	[hook__order__line_number]
 ,	[Record Valid From (source__order_lines)]
 ,	[Record Valid To (source__order_lines)]
 

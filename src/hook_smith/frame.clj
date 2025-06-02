@@ -43,7 +43,7 @@
                                       (str "\t" (str/join " & '~' & " hook-refs) "\tAs [" name "]")))
                                   composite-hooks)]
       (when (seq composite-sections)
-        (str (str/join "\n" composite-sections)
+        (str (str/join "\n," composite-sections)
              "\n,\t*"
              "\n;\n\nLoad\n")))))
 
