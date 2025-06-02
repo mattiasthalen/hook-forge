@@ -33,7 +33,6 @@ Target: lib://adss/dab/source/frame__source__customers.qvd
 [source__customers]:
 Load
 	If(Not IsNull(Text([id])), 'source.customer.id' & Text([id]))	As [hook__customer__id]
-,	If(Not IsNull(Text([name])), 'source.customer.name' & Text([name]))	As [hook__customer__name]
 ,	*
 
 From

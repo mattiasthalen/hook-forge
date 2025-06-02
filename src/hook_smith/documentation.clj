@@ -16,16 +16,17 @@
 (defn generate-hook-entity-block [frame]
   (let [frame-name (:name frame)
         primary-hook (get-primary-hook frame)
-        foreign-keys (get-foreign-key-hooks frame)]
+        foreign-keys (get-foreign-key-hooks frame)
+        foreign-keys-section (when (seq foreign-keys)
+                               (str "        **Foreign Keys:**\n"
+                                    "        " (string/join "\n        " foreign-keys) "\n"
+                                    "        &nbsp;\n"))]
     (str "    frame__" frame-name "(\"
         **FRAME__" (string/upper-case frame-name) "**
         **Primary Key:**
         " primary-hook "
         &nbsp;
-        **Foreign Keys:**
-        " (string/join "\n        " foreign-keys) "
-        &nbsp;
-        **Fields:**
+" foreign-keys-section "        **Fields:**
         ...
     \")")))
 

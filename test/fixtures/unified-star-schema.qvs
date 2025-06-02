@@ -180,7 +180,7 @@ Let val__field_list	= Null();
 Load
 	'source__customers'	As [Peripheral]
 ,	[pit_hook__customer__id]
-,	[hook__customer__name]
+
 ,	[Record Valid From (source__customers)]
 ,	[Record Valid To (source__customers)]
 
@@ -268,7 +268,7 @@ Left Join([bridge__source__orders])
 Load
 	[hook__customer__id]
 ,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
-,	[hook__customer__name]
+
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
 
@@ -386,7 +386,7 @@ Left Join([bridge__source__order_lines])
 Load
 	[hook__customer__id]
 ,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
-,	[hook__customer__name]
+
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
 
@@ -515,7 +515,7 @@ Left Join([bridge__source__customer_orders])
 Load
 	[hook__customer__id]
 ,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
-,	[hook__customer__name]
+
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
 
@@ -540,7 +540,7 @@ Left Join([bridge__source__customer_orders])
 Load
 	[hook__customer__id]
 ,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
-,	[hook__customer__name]
+
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
 

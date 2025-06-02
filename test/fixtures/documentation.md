@@ -21,9 +21,6 @@ flowchart LR
         **Primary Key:**
         hook__customer__id
         &nbsp;
-        **Foreign Keys:**
-        hook__customer__name
-        &nbsp;
         **Fields:**
         ...
     ")
