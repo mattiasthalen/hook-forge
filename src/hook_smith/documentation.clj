@@ -10,8 +10,11 @@
 
 (defn get-foreign-key-hooks [frame]
   (let [hooks (get frame :hooks [])
-        non-primary-hooks (filter #(not (true? (:primary %))) hooks)]
-    (map :name non-primary-hooks)))
+        composite-hooks (get frame :composite_hooks [])
+        non-primary-hooks (filter #(not (true? (:primary %))) hooks)
+        non-primary-composite-hooks (filter #(not (true? (:primary %))) composite-hooks)]
+    (concat (map :name non-primary-hooks)
+            (map :name non-primary-composite-hooks))))
 
 (defn generate-hook-entity-block [frame]
   (let [frame-name (:name frame)
