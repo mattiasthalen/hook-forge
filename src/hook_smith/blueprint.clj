@@ -65,13 +65,7 @@
              :concept "customer"
              :qualifier "id"
              :keyset "source.customer.id"
-             :business_key_field "id"}
-            {:name "hook__customer__name"
-             :primary false
-             :concept "customer"
-             :qualifier "name"
-             :keyset "source.customer.name"
-             :business_key_field "name"}]}
+             :business_key_field "id"}]}
    {:name "source__orders"
     :source_system "source"
     :source_table "lib://adss/das/source/raw__source__orders.qvd"

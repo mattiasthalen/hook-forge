@@ -16,18 +16,21 @@
 (defn generate-hook-entity-block [frame]
   (let [frame-name (:name frame)
         primary-hook (get-primary-hook frame)
-        foreign-keys (get-foreign-key-hooks frame)]
-    (str "    frame__" frame-name "(\"
+        foreign-keys (get-foreign-key-hooks frame)
+        foreign-keys-section (when (seq foreign-keys)
+                               (str "        **Foreign Keys:**\n"
+                                    "        " (string/join "\n        " foreign-keys) "\n"
+                                    "        &nbsp;\n"))
+        skip-generation? (:skip_generation frame)
+        [open-bracket close-bracket] (if skip-generation? ["{{" "}}"] ["(" ")"])]
+    (str "    frame__" frame-name open-bracket "\"
         **FRAME__" (string/upper-case frame-name) "**
         **Primary Key:**
         " primary-hook "
         &nbsp;
-        **Foreign Keys:**
-        " (string/join "\n        " foreign-keys) "
-        &nbsp;
-        **Fields:**
+" foreign-keys-section "        **Fields:**
         ...
-    \")")))
+    \"" close-bracket)))
 
 (defn find-frame-by-primary-hook [frames hook-name]
   (first (filter (fn [frame]
