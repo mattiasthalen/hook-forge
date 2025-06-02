@@ -20,15 +20,17 @@
         foreign-keys-section (when (seq foreign-keys)
                                (str "        **Foreign Keys:**\n"
                                     "        " (string/join "\n        " foreign-keys) "\n"
-                                    "        &nbsp;\n"))]
-    (str "    frame__" frame-name "(\"
+                                    "        &nbsp;\n"))
+        skip-generation? (:skip_generation frame)
+        [open-bracket close-bracket] (if skip-generation? ["{{" "}}"] ["(" ")"])]
+    (str "    frame__" frame-name open-bracket "\"
         **FRAME__" (string/upper-case frame-name) "**
         **Primary Key:**
         " primary-hook "
         &nbsp;
 " foreign-keys-section "        **Fields:**
         ...
-    \")")))
+    \"" close-bracket)))
 
 (defn find-frame-by-primary-hook [frames hook-name]
   (first (filter (fn [frame]

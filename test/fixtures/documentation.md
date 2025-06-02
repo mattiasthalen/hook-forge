@@ -53,7 +53,7 @@ flowchart LR
         ...
     ")
 
-    frame__source__customer_orders("
+    frame__source__customer_orders{{"
         **FRAME__SOURCE__CUSTOMER_ORDERS**
         **Primary Key:**
         hook__customer__order__id
@@ -64,7 +64,7 @@ flowchart LR
         &nbsp;
         **Fields:**
         ...
-    ")
+    "}}
 
     %% Relations
     frame__source__orders -- hook__customer__id --> frame__source__customers
