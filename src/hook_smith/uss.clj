@@ -166,7 +166,7 @@
        "\t[" name "]\n"
        "\n"
        "Into\n"
-       "\t'" target-table "' (qvd)\n"
+       "\t[" target-table "] (qvd)\n"
        ";\n"
        "\n"
        "Drop Table [" name "];\n"
@@ -409,7 +409,7 @@
 (defn generate-uss-footer [config]
   (let [uss (get config :unified-star-schema)
         bridge-path (get uss :bridge_path)]
-    (str "Store [_bridge] Into '" bridge-path "' (qvd);\n"
+    (str "Store [_bridge] Into [" bridge-path "] (qvd);\n"
          "Drop Table [_bridge];")))
 
 (defn generate-uss-qvs [config]

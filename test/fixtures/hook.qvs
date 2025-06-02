@@ -17,7 +17,7 @@ From
 	[lib://adss/das/source/raw__source__products.qvd] (qvd)
 ;
 
-Store [source__products] Into 'lib://adss/dab/source/frame__source__products.qvd' (qvd);
+Store [source__products] Into [lib://adss/dab/source/frame__source__products.qvd] (qvd);
 Drop Table [source__products];
 
 
@@ -40,7 +40,7 @@ From
 	[lib://adss/das/source/raw__source__customers.qvd] (qvd)
 ;
 
-Store [source__customers] Into 'lib://adss/dab/source/frame__source__customers.qvd' (qvd);
+Store [source__customers] Into [lib://adss/dab/source/frame__source__customers.qvd] (qvd);
 Drop Table [source__customers];
 
 
@@ -64,7 +64,7 @@ From
 	[lib://adss/das/source/raw__source__orders.qvd] (qvd)
 ;
 
-Store [source__orders] Into 'lib://adss/dab/source/frame__source__orders.qvd' (qvd);
+Store [source__orders] Into [lib://adss/dab/source/frame__source__orders.qvd] (qvd);
 Drop Table [source__orders];
 
 
@@ -93,6 +93,6 @@ From
 	[lib://adss/das/source/raw__source__order_lines.qvd] (qvd)
 ;
 
-Store [source__order_lines] Into 'lib://adss/dab/source/frame__source__order_lines.qvd' (qvd);
+Store [source__order_lines] Into [lib://adss/dab/source/frame__source__order_lines.qvd] (qvd);
 Drop Table [source__order_lines];
 

@@ -63,7 +63,7 @@
      "From\n"
      "\t[" (:source_table frame) "] (qvd)\n"
      ";\n\n"
-     "Store [" (:name frame) "] Into '" (:target_table frame) "' (qvd);\n"
+     "Store [" (:name frame) "] Into [" (:target_table frame) "] (qvd);\n"
      "Drop Table [" (:name frame) "];\n\n")))
 
 (defn should-generate-frame?
