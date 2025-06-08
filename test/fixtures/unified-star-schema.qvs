@@ -83,7 +83,7 @@ Processing source__products
 
 [source__products]:
 Load
-	Hash256([hook__product__id], [Record Valid From])	As [pit_hook__product__id]
+	[hook__product__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__product__id]
 ,	*
 From
 	[lib://adss/dab/source/frame__source__products.qvd] (qvd)
@@ -158,7 +158,7 @@ Processing source__customers
 
 [source__customers]:
 Load
-	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+	[hook__customer__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__id]
 ,	*
 From
 	[lib://adss/dab/source/frame__source__customers.qvd] (qvd)
@@ -233,7 +233,7 @@ Processing source__orders
 
 [source__orders]:
 Load
-	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+	[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	*
 From
 	[lib://adss/dab/source/frame__source__orders.qvd] (qvd)
@@ -267,7 +267,7 @@ Resident
 Left Join([bridge__source__orders])
 Load
 	[hook__customer__id]
-,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__id]
 
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
@@ -336,7 +336,7 @@ Processing source__order_lines
 
 [source__order_lines]:
 Load
-	Hash256([hook__order__product__id], [Record Valid From])	As [pit_hook__order__product__id]
+	[hook__order__product__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__product__id]
 ,	*
 From
 	[lib://adss/dab/source/frame__source__order_lines.qvd] (qvd)
@@ -372,7 +372,7 @@ Resident
 Left Join([bridge__source__order_lines])
 Load
 	[hook__order__id]
-,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	[hook__order__order_number]
 ,	[hook__customer__id]
 ,	[Record Valid From]	As [Record Valid From (source__orders)]
@@ -385,7 +385,7 @@ From
 Left Join([bridge__source__order_lines])
 Load
 	[hook__customer__id]
-,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__id]
 
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
@@ -397,7 +397,7 @@ From
 Left Join([bridge__source__order_lines])
 Load
 	[hook__product__id]
-,	Hash256([hook__product__id], [Record Valid From])	As [pit_hook__product__id]
+,	[hook__product__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__product__id]
 ,	[hook__product__name]
 ,	[Record Valid From]	As [Record Valid From (source__products)]
 ,	[Record Valid To]	As [Record Valid To (source__products)]
@@ -480,7 +480,7 @@ Processing source__customer_orders
 
 [source__customer_orders]:
 Load
-	Hash256([hook__customer__order__id], [Record Valid From])	As [pit_hook__customer__order__id]
+	[hook__customer__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__order__id]
 ,	*
 From
 	[lib://adss/dab/source/frame__source__customer_orders.qvd] (qvd)
@@ -514,7 +514,7 @@ Resident
 Left Join([bridge__source__customer_orders])
 Load
 	[hook__customer__id]
-,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__id]
 
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
@@ -526,7 +526,7 @@ From
 Left Join([bridge__source__customer_orders])
 Load
 	[hook__order__id]
-,	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+,	[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	[hook__order__order_number]
 ,	[hook__customer__id]
 ,	[Record Valid From]	As [Record Valid From (source__orders)]
@@ -539,7 +539,7 @@ From
 Left Join([bridge__source__customer_orders])
 Load
 	[hook__customer__id]
-,	Hash256([hook__customer__id], [Record Valid From])	As [pit_hook__customer__id]
+,	[hook__customer__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__customer__id]
 
 ,	[Record Valid From]	As [Record Valid From (source__customers)]
 ,	[Record Valid To]	As [Record Valid To (source__customers)]
@@ -644,7 +644,7 @@ Where
 
 Left Join([Order Placed On])
 Load
-	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	1	As [Event: Order Placed On]
 ,	'epoch.date|' & [Order Placed On]	As [hook__epoch__date]
 
@@ -676,7 +676,7 @@ Where
 
 Left Join([Order Due On])
 Load
-	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	1	As [Event: Order Due On]
 ,	'epoch.date|' & [Order Due On]	As [hook__epoch__date]
 
@@ -708,7 +708,7 @@ Where
 
 Left Join([Order Delivered On])
 Load
-	Hash256([hook__order__id], [Record Valid From])	As [pit_hook__order__id]
+[hook__order__id] & '~epoch.date|' & [Record Valid From]	As [pit_hook__order__id]
 ,	1	As [Event: Order Delivered On]
 ,	'epoch.date|' & [order_delivered_on]	As [hook__epoch__date]
 

@@ -83,7 +83,8 @@
   (:name (first (filter #(= (:primary %) true) hooks))))
 
 (defn get-foreign-hooks [hooks]
-  (map :name (filter #(= (:primary %) false) hooks)))
+  (let [primary-hook-name (get-primary-hook hooks)]
+    (map :name (filter #(not= (:name %) primary-hook-name) hooks))))
 
 (defn load-hooks [hooks]
   (if (empty? hooks)

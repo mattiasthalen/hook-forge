@@ -130,13 +130,11 @@
                    "lib://adss/das/source/frame__source__orders.qvd"]
     :target_table "lib://adss/dab/source/frame__source__customer_orders.qvd"
     :hooks [{:name "hook__customer__id"
-             :primary false
              :concept "customer"
              :qualifier "id"
              :keyset "source.customer.id"
              :business_key_field "id"}
             {:name "hook__order__id"
-             :primary false
              :concept "order"
              :qualifier "id"
              :keyset "source.order.id"
